@@ -1,0 +1,4 @@
+spec: apex.axdl
+generates:
+  sample.rs:
+    module: https://raw.githubusercontent.com/apexlang/codegen/deno-wip/src/rust/rust-basic.ts

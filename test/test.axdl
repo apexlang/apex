@@ -1,0 +1,9 @@
+namespace "hey"
+
+interface Test {
+  operation(input:Input): string
+}
+
+type Input {
+  a:string
+}
