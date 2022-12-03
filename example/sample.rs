@@ -3,11 +3,11 @@
  *                                              *
  * See https://apexlang.io for more information *
  ***********************************************/
-     trait Test {
+trait Test {
     fn operation(input: Input) -> String;
-    }
+}
 
-    #[derive()]
-     struct Input{
-      a: String,
-    }
+#[derive()]
+struct Input {
+    a: String,
+}
