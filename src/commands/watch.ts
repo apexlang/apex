@@ -57,7 +57,6 @@ async function watch(configurations: string[]) {
 
           confs = configMap[p];
           if (confs) {
-            console.log("found YAML");
             watcher.close();
             await reloadConfigurations();
             confs.forEach(async (conf) => {

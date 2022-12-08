@@ -25,8 +25,10 @@ deno install -f --allow-read --allow-write --allow-env --allow-net --allow-run -
 deno install -f --allow-read --allow-write --allow-env --allow-net --allow-run --unstable ./apex.ts
 ```
 
-## Reload cache
+## Reload CLI cache
 
 ```shell
+export APEX_VERSION=cli_features
+
 deno cache --reload=https://raw.githubusercontent.com/apexlang https://raw.githubusercontent.com/apexlang/apex/$APEX_VERSION/apex.ts
 ```
