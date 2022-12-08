@@ -1,13 +1,17 @@
 import { default as WASI } from "https://deno.land/std@0.167.0/wasi/snapshot_preview1.ts";
 import { cache } from "https://deno.land/x/cache@0.2.13/mod.ts";
-import { encode, decode } from "./utf8.ts";
+import { decode, encode } from "./utf8.ts";
 
 interface WasmModuleExports {
   memory: WebAssembly.Memory;
   _initialize: () => void;
   alloc_buffer: (size: number) => number;
   free_buffer: (buffer: number) => number;
-  wastyle: (codePointer: number, optionsPointer: number, resultPointerPointer: number) => number;
+  wastyle: (
+    codePointer: number,
+    optionsPointer: number,
+    resultPointerPointer: number,
+  ) => number;
 }
 
 let wasmExports: WasmModuleExports;
@@ -32,7 +36,7 @@ export async function init(wasmFile: string | ArrayBuffer): Promise<void> {
   // Load WASI and start the module
   const wasi = new WASI({
     args: [],
-    env: {}
+    env: {},
   });
 
   const wasm = await WebAssembly.instantiate(wasmModule!, {
@@ -44,7 +48,11 @@ export async function init(wasmFile: string | ArrayBuffer): Promise<void> {
   wasmExports._initialize(); // C++ initialization
 }
 
-function writeEncodedString(str: Uint8Array, memory: WebAssembly.Memory, pointer: number) {
+function writeEncodedString(
+  str: Uint8Array,
+  memory: WebAssembly.Memory,
+  pointer: number,
+) {
   const array = new Uint8Array(memory.buffer, pointer, str.byteLength + 1);
   for (let i = 0; i < str.length; i++) array[i] = str[i];
   array[str.length] = 0;
@@ -68,14 +76,17 @@ function readString(memory: WebAssembly.Memory, pointer: number) {
 
 export function format(code: string, options: string): [boolean, string] {
   if (!wasmExports) {
-    throw new Error("Please call init() to load the WASM AStyle library first.");
+    throw new Error(
+      "Please call init() to load the WASM AStyle library first.",
+    );
   }
 
   const encodedCode = encode(code);
   const encodedOptions = encode(options);
 
   // code + options + result buffer address
-  const bufferSize = encodedCode.byteLength + 1 + (encodedOptions.byteLength + 1) + 4;
+  const bufferSize = encodedCode.byteLength + 1 +
+    (encodedOptions.byteLength + 1) + 4;
 
   const bufferPointer = wasmExports.alloc_buffer(bufferSize);
 
@@ -86,9 +97,16 @@ export function format(code: string, options: string): [boolean, string] {
   writeEncodedString(encodedCode, wasmExports.memory, codePointer);
   writeEncodedString(encodedOptions, wasmExports.memory, optionsPointer);
 
-  const success = !!wasmExports.wastyle(codePointer, optionsPointer, resultBufferPointerBufferPointer);
+  const success = !!wasmExports.wastyle(
+    codePointer,
+    optionsPointer,
+    resultBufferPointerBufferPointer,
+  );
 
-  const resultBufferPointer = readInt32(wasmExports.memory, resultBufferPointerBufferPointer);
+  const resultBufferPointer = readInt32(
+    wasmExports.memory,
+    resultBufferPointerBufferPointer,
+  );
   const result = readString(wasmExports.memory, resultBufferPointer);
 
   wasmExports.free_buffer(bufferPointer);

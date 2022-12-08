@@ -22,6 +22,6 @@ export function decode(input: Uint8Array): string {
   return decodeURIComponent(
     Array.from(input)
       .map((code) => `%${code.toString(16).padStart(2, "0")}`)
-      .join("")
+      .join(""),
   );
 }

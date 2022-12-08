@@ -5,13 +5,13 @@ export const varOptions = {
   collect: true,
   value: (
     value: string,
-    previous: { [key: string]: string } = {}
+    previous: { [key: string]: string } = {},
   ): { [key: string]: string } => {
     const idx = value.indexOf("=");
     if (idx == -1) {
       throw new ValidationError(
         `Variables must be in [key]=[value] syntax, but got "${value}".`,
-        { exitCode: 1 }
+        { exitCode: 1 },
       );
     }
 
@@ -23,5 +23,5 @@ export const varOptions = {
 };
 
 export async function templateCompletion(): Promise<string[]> {
-  return (await templateList()).map(t => t.name);
+  return (await templateList()).map((t) => t.name);
 }

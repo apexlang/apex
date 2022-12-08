@@ -35,22 +35,28 @@ async function formatJsTs(source: string): Promise<string> {
   });
 }
 
-const astyleHref = new URL('./astyle.wasm', import.meta.url).href;
+const astyleHref = new URL("./astyle.wasm", import.meta.url).href;
 
 async function formatCsharp(source: string): Promise<string> {
   await astyle.init(astyleHref);
-  const [ok, result] = astyle.format(source, "indent-namespaces break-blocks pad-comma indent=tab style=1tbs");
+  const [ok, result] = astyle.format(
+    source,
+    "indent-namespaces break-blocks pad-comma indent=tab style=1tbs",
+  );
   if (!ok) {
-    throw new Error(`Could not format C#: ${result}`)
+    throw new Error(`Could not format C#: ${result}`);
   }
   return result;
 }
 
 async function formatClike(source: string): Promise<string> {
   await astyle.init(astyleHref);
-  const [ok, result] = astyle.format(source, "pad-oper indent=tab style=google");
+  const [ok, result] = astyle.format(
+    source,
+    "pad-oper indent=tab style=google",
+  );
   if (!ok) {
-    throw new Error(`Could not format source: ${result}`)
+    throw new Error(`Could not format source: ${result}`);
   }
   return result;
 }

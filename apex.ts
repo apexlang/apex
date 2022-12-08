@@ -44,7 +44,7 @@ if (
     .default("help")
     .name("apex")
     .description(
-      "A code generation tool using Apex, an interface definition language (IDL) for modeling software."
+      "A code generation tool using Apex, an interface definition language (IDL) for modeling software.",
     )
     .command("new", newCmd.command)
     .command("init", init.command)
@@ -63,7 +63,7 @@ if (
           "--allow-run",
         ],
         provider: [new GithubProvider({ repository: "apexlang/apex" })],
-      })
+      }),
     )
     .command("help", new HelpCommand().global())
     .command("completions", new CompletionsCommand())

@@ -3,12 +3,12 @@ import * as fs from "https://deno.land/std@0.167.0/fs/mod.ts";
 import * as yaml from "https://deno.land/std@0.167.0/encoding/yaml.ts";
 import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
 import {
+  Confirm,
+  ConfirmOptions,
   Input,
   InputOptions,
   Number,
   NumberOptions,
-  Confirm,
-  ConfirmOptions,
 } from "https://deno.land/x/cliffy@v0.25.5/prompt/mod.ts";
 import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
 
@@ -20,7 +20,7 @@ export async function initializeProject(
   dir: string,
   template: string,
   spec?: string,
-  variables: Variables = {}
+  variables: Variables = {},
 ): Promise<void> {
   if (template.indexOf("..") != -1) {
     throw new Error(`invalid template ${template}`);
@@ -64,23 +64,24 @@ export async function initializeProject(
   // Prompt for unresolved variables from the template.
   for (const variable of unresolved) {
     if (!variable.message) {
-      variable.message = variable.prompt || variable.description || `Enter ${variable.name}`;
+      variable.message = variable.prompt || variable.description ||
+        `Enter ${variable.name}`;
     }
     const type = variable.type || "input";
     switch (type) {
       case "input":
         variables[variable.name] = await Input.prompt(
-          variable as unknown as InputOptions
+          variable as unknown as InputOptions,
         );
         break;
       case "number":
         variables[variable.name] = await Number.prompt(
-          variable as unknown as NumberOptions
+          variable as unknown as NumberOptions,
         );
         break;
       case "confirm":
         variables[variable.name] = await Confirm.prompt(
-          variable as unknown as ConfirmOptions
+          variable as unknown as ConfirmOptions,
         );
         break;
       default:
@@ -132,7 +133,7 @@ export async function initializeProject(
         const expr = `\\{\\{\\s*\\.${key}\\s*\\}\\}`;
         contents = contents.replaceAll(
           new RegExp(expr, "gm"),
-          value.toString()
+          value.toString(),
         );
       }
     }
@@ -144,7 +145,7 @@ export async function initializeProject(
   if (spec) {
     Deno.copyFile(
       spec,
-      path.join(dir, templateConfig.specLocation || "apex.axdl")
+      path.join(dir, templateConfig.specLocation || "apex.axdl"),
     );
   }
 

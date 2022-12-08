@@ -8,7 +8,7 @@ import { process, writeOutput } from "../process.ts";
 export const command = new Command()
   .arguments("[...configuration:string[]]")
   .description(
-    "Watch apex configuration for changes and trigger code generation."
+    "Watch apex configuration for changes and trigger code generation.",
   )
   .action(async (_options: unknown, configFiles: string[]) => {
     configFiles = configFiles || [];

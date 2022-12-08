@@ -49,4 +49,6 @@ export interface Variable {
   loop: boolean;
 }
 
-export type Variables = { [name: string]: string | number | boolean | undefined };
+export type Variables = {
+  [name: string]: string | number | boolean | undefined;
+};

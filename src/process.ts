@@ -3,11 +3,11 @@ import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
 import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
 
 import { Configuration, Output } from "./config.ts";
-import { sourceFormatters, cliFormatters } from "./formatters.ts";
+import { cliFormatters, sourceFormatters } from "./formatters.ts";
 
 export async function process(config: Configuration): Promise<Output[]> {
   // Run the generation process with restricted permissions.
-  const href = new URL('./generate.ts', import.meta.url).href;
+  const href = new URL("./generate.ts", import.meta.url).href;
   const p = await Deno.run({
     cmd: [
       Deno.execPath(),
@@ -68,7 +68,8 @@ export async function writeOutput(generated: Output): Promise<void> {
   // Execute additional tooling via "runAfter".
   if (generated.runAfter) {
     generated.runAfter.forEach(async (cmdConfig) => {
-      const joined = cmdConfig.command.trim().split("\n").map(v => v.trim()).join(" ");
+      const joined = cmdConfig.command.trim().split("\n").map((v) => v.trim())
+        .join(" ");
       const args = joined.split(/\s+/);
       const cmd = args.shift()!;
       log.info(`Running ${joined}`);
