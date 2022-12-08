@@ -31,7 +31,7 @@ export async function init(wasmFile: string | ArrayBuffer): Promise<void> {
     if (wasm.buffer.byteLength > 0) {
       wasmModule = await WebAssembly.compile(wasm.buffer);
     } else {
-      wasmModule = await WebAssembly.compileStreaming(fetch(wasmFile));
+      wasmModule = await WebAssembly.compileStreaming(await fetch(wasmFile));
     }
   } else {
     wasmModule = await WebAssembly.compile(wasmFile);
