@@ -28,7 +28,7 @@ export async function init(wasmFile: string | ArrayBuffer): Promise<void> {
   if (typeof wasmFile === "string") {
     const file = await cache(wasmFile);
     const wasm = await Deno.readFileSync(file.path);
-    if (wasm.buffer.byteLength == 0) {
+    if (wasm.buffer.byteLength > 0) {
       wasmModule = await WebAssembly.compile(wasm.buffer);
     } else {
       wasmModule = await WebAssembly.compileStreaming(fetch(wasmFile));
