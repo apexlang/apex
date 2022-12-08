@@ -17,7 +17,7 @@ First, install [Deno](https://github.com/denoland/deno_install).
 Then run the command below from a terminal.
 
 ```
-deno install -A -f -n land https://deno.land/x/apex_cli@latest/apex.ts
+deno install -A -f -n apex https://deno.land/x/apex_cli@latest/apex.ts
 ```
 
 ```shell
@@ -60,4 +60,4 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## License
 
-This project is licensed under the [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) - see the [LICENSE.txt](LICENSE.txt) file for details
+This project is licensed under the [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) - see the [LICENSE](LICENSE) file for details
