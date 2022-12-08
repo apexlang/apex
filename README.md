@@ -17,7 +17,7 @@ First, install [Deno](https://github.com/denoland/deno_install).
 Then run the command below from a terminal.
 
 ```
-deno install -A -f -n apex https://deno.land/x/apex_cli@latest/apex.ts
+deno install -A -f -n apex https://deno.land/x/apex_cli/apex.ts
 ```
 
 ```shell
