@@ -1,5 +1,5 @@
-import * as apex from "https://raw.githubusercontent.com/apexlang/apex-js/deno-wip/src/index.ts";
-import * as model from "https://raw.githubusercontent.com/apexlang/apex-js/deno-wip/src/model/index.ts";
+import * as apex from "https://deno.land/x/apex_core@v0.1.0/mod.ts";
+import * as model from "https://deno.land/x/apex_core@v0.1.0/model/mod.ts";
 import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
 import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
 import * as streams from "https://deno.land/std@0.167.0/streams/read_all.ts";
