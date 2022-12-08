@@ -35,7 +35,7 @@ import * as watch from "./src/commands/watch.ts";
 
 if (
   Deno.args.length == 1 &&
-  Deno.args[0] == "generate" &&
+  Deno.args[0] == "__generate" &&
   !Deno.isatty(Deno.stdin.rid)
 ) {
   generate.fromStdin();

@@ -1,8 +1,9 @@
 import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
 import * as yaml from "https://deno.land/std@0.167.0/encoding/yaml.ts";
 import * as streams from "https://deno.land/std@0.167.0/streams/read_all.ts";
+import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
 
-import { Configuration } from "../config.ts";
+import { Configuration, Output } from "../config.ts";
 import { process, writeOutput } from "../process.ts";
 
 export const command = new Command()
@@ -18,7 +19,13 @@ export const command = new Command()
 
 export async function fromFiles(...configFiles: string[]) {
   for (const configFile of configFiles) {
-    const configContents = await Deno.readTextFile(configFile);
+    let configContents = "";
+    try {
+      configContents = await Deno.readTextFile(configFile);
+    } catch (e) {
+      log.error(`Could not read config ${configFile}`);
+      throw e;
+    }
     await fromConfig(configContents);
   }
 }
@@ -34,11 +41,12 @@ export async function fromConfig(configContents: string) {
   const configs = configContents
     .split("---")
     .map((v) => v.trim())
-    .map((v) => yaml.parse(v) as Configuration)
-    .map(async (v) => await process(v))
-    .flatMap((v) => v);
-
-  const outputs = (await Promise.all(configs)).flatMap((v) => v);
+    .map((v) => yaml.parse(v) as Configuration);
+  const outputs: Output[] = [];
+  for (const config of configs) {
+    const o = await process(config);
+    outputs.push(...o);
+  }
 
   outputs.forEach(async (generated) => await writeOutput(generated));
 }

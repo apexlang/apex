@@ -22,7 +22,7 @@ export async function process(config: Configuration): Promise<Output[]> {
   });
 
   const input = JSON.stringify(config);
-  p.stdin.write(new TextEncoder().encode(input));
+  await p.stdin.write(new TextEncoder().encode(input));
   p.stdin.close();
 
   // Reading the outputs and closes their pipes
