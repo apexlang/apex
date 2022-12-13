@@ -6,6 +6,8 @@ import { Configuration, Output } from "./config.ts";
 import { cliFormatters, sourceFormatters } from "./formatters.ts";
 
 export async function process(config: Configuration): Promise<Output[]> {
+  config = await processPlugins(config);
+
   // Run the generation process with restricted permissions.
   const href = new URL("./generate.ts", import.meta.url).href;
   const p = await Deno.run({
@@ -41,6 +43,43 @@ export async function process(config: Configuration): Promise<Output[]> {
   return JSON.parse(output) as Output[];
 }
 
+async function processPlugins(config: Configuration): Promise<Configuration> {
+  if (!config.plugins) return config;
+
+  // Run the plugin process with restricted permissions.
+  const href = new URL("./plugins.ts", import.meta.url).href;
+  const p = await Deno.run({
+    cmd: [
+      Deno.execPath(),
+      "run",
+      "--allow-read",
+      "--allow-net=deno.land,raw.githubusercontent.com",
+      href,
+    ],
+    stdout: "piped",
+    stderr: "piped",
+    stdin: "piped",
+  });
+
+  const input = JSON.stringify(config);
+  await p.stdin.write(new TextEncoder().encode(input));
+  p.stdin.close();
+
+  const rawOutput = await p.output();
+  const rawError = await p.stderrOutput();
+
+  const { code } = await p.status();
+  p.close();
+
+  if (code !== 0) {
+    const errorString = new TextDecoder().decode(rawError);
+    throw new Error(errorString);
+  }
+
+  const output = new TextDecoder().decode(rawOutput);
+  return JSON.parse(output) as Configuration;
+}
+
 export async function writeOutput(generated: Output): Promise<void> {
   let source = generated.source;
   const ext = fileExtension(generated.file).toLowerCase();
@@ -68,7 +107,10 @@ export async function writeOutput(generated: Output): Promise<void> {
   // Execute additional tooling via "runAfter".
   if (generated.runAfter) {
     generated.runAfter.forEach(async (cmdConfig) => {
-      const joined = cmdConfig.command.trim().split("\n").map((v) => v.trim())
+      const joined = cmdConfig.command
+        .trim()
+        .split("\n")
+        .map((v) => v.trim())
         .join(" ");
       const args = joined.split(/\s+/);
       const cmd = args.shift()!;

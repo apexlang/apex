@@ -5,7 +5,8 @@ export type Config = { [key: string]: unknown };
 export interface Configuration {
   spec: string;
   config?: Config;
-  generates: Record<string, Target>;
+  plugins?: string[];
+  generates?: Record<string, Target>;
 }
 
 export interface Target {

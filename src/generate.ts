@@ -22,9 +22,10 @@ async function processConfig(config: Configuration): Promise<Output[]> {
       continue;
     }
 
-    const url = generatorConfig.module.startsWith(".") ||
-        generatorConfig.module.startsWith("/")
+    const url = generatorConfig.module.startsWith(".")
       ? new URL("file:///" + path.join(Deno.cwd(), generatorConfig.module))
+      : file.startsWith("/")
+      ? new URL("file:///" + generatorConfig.module)
       : new URL(generatorConfig.module);
 
     const visitorConfig: Config = {};
@@ -41,13 +42,11 @@ async function processConfig(config: Configuration): Promise<Output[]> {
     visitorConfig["$filename"] = file;
 
     log.debug(
-      `Generating source for '${file}' with generator from ${url} with config\n${
-        JSON.stringify(
-          visitorConfig,
-          null,
-          2,
-        )
-      }`,
+      `Generating source for '${file}' with generator from ${url} with config\n${JSON.stringify(
+        visitorConfig,
+        null,
+        2
+      )}`
     );
 
     const generator = await import(url.toString());

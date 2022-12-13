@@ -42,6 +42,7 @@ export async function fromConfig(configContents: string) {
     .split("---")
     .map((v) => v.trim())
     .map((v) => yaml.parse(v) as Configuration);
+
   const outputs: Output[] = [];
   for (const config of configs) {
     const o = await process(config);
