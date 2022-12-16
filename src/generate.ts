@@ -39,11 +39,13 @@ export async function processConfig(config: Configuration): Promise<Output[]> {
     visitorConfig["$filename"] = file;
 
     log.debug(
-      `Generating source for '${file}' with generator from ${url} with config\n${JSON.stringify(
-        visitorConfig,
-        null,
-        2
-      )}`
+      `Generating source for '${file}' with generator from ${url} with config\n${
+        JSON.stringify(
+          visitorConfig,
+          null,
+          2,
+        )
+      }`,
     );
 
     const generator = await import(url.toString());
@@ -66,7 +68,7 @@ export async function processConfig(config: Configuration): Promise<Output[]> {
 
 export async function processPlugin(
   doc: apex.ast.Document,
-  config: Configuration
+  config: Configuration,
 ): Promise<Configuration> {
   for (const file of config.plugins || []) {
     const url = makeRelativeUrl(file);
