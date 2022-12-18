@@ -84,3 +84,11 @@ export async function mkdirAll(path: string, mode: number) {
     }
   }
 }
+
+export function makeRelativeUrl(file: string): URL {
+  return file.startsWith(".")
+    ? new URL("file:///" + path.join(Deno.cwd(), file))
+    : file.startsWith("/")
+    ? new URL("file:///" + file)
+    : new URL(file);
+}

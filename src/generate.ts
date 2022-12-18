@@ -5,12 +5,14 @@ import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
 import * as streams from "https://deno.land/std@0.167.0/streams/read_all.ts";
 
 import { Config, Configuration, Output } from "./config.ts";
-import { existsSync } from "./utils.ts";
+import { existsSync, makeRelativeUrl } from "./utils.ts";
 
-async function processConfig(config: Configuration): Promise<Output[]> {
+export async function processConfig(config: Configuration): Promise<Output[]> {
   const apexSource = await Deno.readTextFile(config.spec);
   // TODO: implement resolver callback
   const doc = apex.parse(apexSource);
+
+  config = await processPlugin(doc, config);
 
   const output: Output[] = [];
   for (const file in config.generates) {
@@ -21,11 +23,7 @@ async function processConfig(config: Configuration): Promise<Output[]> {
       //log.info(`Skipping ${file}`);
       continue;
     }
-
-    const url = generatorConfig.module.startsWith(".") ||
-        generatorConfig.module.startsWith("/")
-      ? new URL("file:///" + path.join(Deno.cwd(), generatorConfig.module))
-      : new URL(generatorConfig.module);
+    const url = makeRelativeUrl(generatorConfig.module);
 
     const visitorConfig: Config = {};
     if (config.config) {
@@ -66,6 +64,22 @@ async function processConfig(config: Configuration): Promise<Output[]> {
   }
 
   return output;
+}
+
+export async function processPlugin(
+  doc: apex.ast.Document,
+  config: Configuration,
+): Promise<Configuration> {
+  for (const file of config.plugins || []) {
+    const url = makeRelativeUrl(file);
+
+    log.debug(`Generating configuration with plugin from ${url}`);
+
+    const plugin = await import(url.toString());
+    config = plugin.default(doc, config);
+  }
+
+  return config;
 }
 
 // Detect piped input

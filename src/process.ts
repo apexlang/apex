@@ -6,6 +6,8 @@ import { Configuration, Output } from "./config.ts";
 import { cliFormatters, sourceFormatters } from "./formatters.ts";
 
 export async function process(config: Configuration): Promise<Output[]> {
+  log.debug(`Configuration is: ${JSON.stringify(config, null, 2)}`);
+
   // Run the generation process with restricted permissions.
   const href = new URL("./generate.ts", import.meta.url).href;
   const p = await Deno.run({
@@ -38,6 +40,7 @@ export async function process(config: Configuration): Promise<Output[]> {
   }
 
   const output = new TextDecoder().decode(rawOutput);
+  log.debug(`Generator output: ${output}`);
   return JSON.parse(output) as Output[];
 }
 
@@ -68,7 +71,10 @@ export async function writeOutput(generated: Output): Promise<void> {
   // Execute additional tooling via "runAfter".
   if (generated.runAfter) {
     generated.runAfter.forEach(async (cmdConfig) => {
-      const joined = cmdConfig.command.trim().split("\n").map((v) => v.trim())
+      const joined = cmdConfig.command
+        .trim()
+        .split("\n")
+        .map((v) => v.trim())
         .join(" ");
       const args = joined.split(/\s+/);
       const cmd = args.shift()!;
