@@ -7,15 +7,22 @@ export interface Configuration {
   config?: Config;
   plugins?: string[];
   generates?: Record<string, Target>;
+  tasks?: Record<string, string[]>;
 }
 
 export interface Target {
   module: string;
   visitorClass?: string;
   ifNotExists?: boolean;
+  append?: Visitor[];
   executable?: boolean;
   config?: Config;
   runAfter?: Command[];
+}
+
+export interface Visitor {
+  module: string;
+  visitorClass?: string;
 }
 
 export interface Command {
@@ -33,7 +40,7 @@ export interface Output {
 
 export interface JsonOutput {
   path: string;
-  contents: number[];
+  contents: string;
   mode?: number;
   executable: boolean;
   runAfter?: Command[];
@@ -41,9 +48,47 @@ export interface JsonOutput {
 
 /// TEMPLATE FILES
 
+export type TemplateMap = Record<string, InstalledTemplate>;
+
+export interface InstalledTemplate extends TemplateInfo {
+  url: string;
+}
+
+export interface TemplateRegistry {
+  templates: TemplateMap;
+}
+
+export interface ProcessTemplateArgs {
+  module: string;
+  variables: Variables;
+}
+
+export type Assets = Record<string, Uint8Array>;
+
+export interface FSStructure {
+  files?: string[];
+  directories?: string[];
+  templates?: { [engine: string]: string[] };
+}
+
+export interface TemplateConfig {
+  name?: string;
+  description?: string;
+  variables?: Variable[];
+  specLocation?: string;
+}
+
 export interface Template {
   name?: string;
   description?: string;
+  info?: TemplateInfo;
+  templates?: string[];
+  process?(variables: Variables): Promise<FSStructure>;
+}
+
+export interface TemplateInfo {
+  name: string;
+  description: string;
   variables?: Variable[];
   specLocation?: string;
 }
@@ -52,13 +97,11 @@ export interface Variable {
   name: string;
   message?: string;
   description?: string;
-  type?: "input" | "number" | "confirm";
   prompt?: string;
+  type?: "input" | "number" | "confirm";
   default?: string | number | boolean;
-  required: boolean;
-  loop: boolean;
+  required?: boolean;
+  loop?: boolean;
 }
 
-export type Variables = {
-  [name: string]: string | number | boolean | undefined;
-};
+export type Variables = Record<string, string | number | boolean | undefined>;

@@ -1,7 +1,7 @@
-import * as apex from "https://deno.land/x/apex_core@v0.1.1/mod.ts";
-import { assertEquals } from "https://deno.land/std@0.167.0/testing/asserts.ts";
+import * as apex from "https://deno.land/x/apex_core@v0.1.2/mod.ts";
+import { assertEquals } from "https://deno.land/std@0.171.0/testing/asserts.ts";
 import { processConfig, processPlugin } from "../src/generate.ts";
-import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
+import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
 import { asBytes, setupLogger } from "../src/utils.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
