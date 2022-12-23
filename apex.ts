@@ -29,8 +29,10 @@ await log.setup({
 
 import * as generate from "./src/commands/generate.ts";
 import * as newCmd from "./src/commands/new.ts";
+import * as install from "./src/commands/install.ts";
 import * as init from "./src/commands/init.ts";
 import * as list from "./src/commands/list.ts";
+import * as describe from "./src/commands/describe.ts";
 import * as watch from "./src/commands/watch.ts";
 
 if (
@@ -46,21 +48,20 @@ if (
     .description(
       "A code generation tool using Apex, an interface definition language (IDL) for modeling software.",
     )
+    .command("install", install.command)
     .command("new", newCmd.command)
     .command("init", init.command)
     .command("generate", generate.command)
     .command("list", list.command)
+    .command("describe", describe.command)
     .command("watch", watch.command)
     .command(
       "upgrade",
       new UpgradeCommand({
         main: "apex.ts",
         args: [
-          "--allow-read",
-          "--allow-write",
-          "--allow-env",
-          "--allow-net",
-          "--allow-run",
+          "--allow-all",
+          "--unstable",
         ],
         provider: [new GithubProvider({ repository: "apexlang/apex" })],
       }),

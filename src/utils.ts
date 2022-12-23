@@ -1,9 +1,8 @@
 import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
 import home_dir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";
 import * as yaml from "https://deno.land/std@0.167.0/encoding/yaml.ts";
-import { walkSync } from "https://deno.land/std@0.167.0/fs/mod.ts";
 
-import { Template } from "./config.ts";
+import { InstalledTemplate, TemplateRegistry } from "./config.ts";
 
 // This function is copied here because it is deprecated for a reason
 // that does not match ou use case.
@@ -19,33 +18,21 @@ export function existsSync(filePath: string | URL): boolean {
   }
 }
 
-export async function templateList(): Promise<Template[]> {
+export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   const dirs = await getInstallDirectories();
-  // Copy files from template directory.
-  const iter = walkSync(dirs.templates, {
-    followSymlinks: true,
-    match: [/\W.template$/g],
-  });
+  const templateRegistry = path.join(dirs.home, "templates.yaml");
+  const templateListYAML = Deno.readTextFileSync(templateRegistry);
+  return yaml.parse(templateListYAML) as TemplateRegistry;
+}
 
-  const templates: Template[] = [];
-  for (const f of iter) {
-    const name = path
-      .relative(dirs.templates, path.dirname(f.path))
-      .replace("\\", "/");
-    const templateData = Deno.readTextFileSync(f.path);
-    const templateConfig = yaml.parse(templateData) as Template;
-    templates.push({
-      ...templateConfig,
-      name,
-    });
-  }
-
+export async function templateList(): Promise<InstalledTemplate[]> {
+  const allTemplates = await loadTemplateRegistry();
+  const templates = Object.values(allTemplates.templates);
   return templates.sort((a, b) => new String(a.name).localeCompare(b.name));
 }
 
 export interface ApexDirs {
   home: string;
-  templates: string;
   definitions: string;
 }
 
@@ -56,18 +43,13 @@ export async function getInstallDirectories(): Promise<ApexDirs> {
   }
 
   const apexHome = path.join(homeDirectory, ".apex");
-  const templatesHome = path.join(apexHome, "templates");
   const definitionsHome = path.join(apexHome, "definitions");
 
   await mkdirAll(apexHome, 0o700);
-  await Promise.all([
-    mkdirAll(templatesHome, 0o700),
-    mkdirAll(definitionsHome, 0o700),
-  ]);
+  await mkdirAll(definitionsHome, 0o700);
 
   return {
     home: apexHome,
-    templates: templatesHome,
     definitions: definitionsHome,
   };
 }

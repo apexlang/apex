@@ -1,10 +1,8 @@
 import * as apex from "https://deno.land/x/apex_core@v0.1.1/mod.ts";
 import * as model from "https://deno.land/x/apex_core@v0.1.1/model/mod.ts";
 import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
-import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
-import * as streams from "https://deno.land/std@0.167.0/streams/read_all.ts";
 
-import { Config, Configuration, Output } from "./config.ts";
+import { Config, Configuration, Output, Template } from "./config.ts";
 import { existsSync, makeRelativeUrl } from "./utils.ts";
 
 export async function processConfig(config: Configuration): Promise<Output[]> {
@@ -82,15 +80,13 @@ export async function processPlugin(
   return config;
 }
 
-// Detect piped input
-if (!Deno.isatty(Deno.stdin.rid) && import.meta.main) {
-  const stdinContent = await streams.readAll(Deno.stdin);
-  const content = new TextDecoder().decode(stdinContent);
-  try {
-    const config = JSON.parse(content) as Configuration;
-    console.log(JSON.stringify(await processConfig(config)));
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+export async function importTemplate(
+  module: string,
+): Promise<Template> {
+  const url = makeRelativeUrl(module);
+
+  log.debug(`Importing template from ${url}`);
+
+  const template = await import(url.toString());
+  return template.default as Template;
 }

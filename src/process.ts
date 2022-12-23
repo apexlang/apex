@@ -2,46 +2,21 @@ import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
 import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
 import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
 
-import { Configuration, Output } from "./config.ts";
+import {
+  Assets,
+  Configuration,
+  FSStructure,
+  Output,
+  ProcessTemplateArgs,
+  Template,
+  Variables,
+} from "./config.ts";
 import { cliFormatters, sourceFormatters } from "./formatters.ts";
 
-export async function process(config: Configuration): Promise<Output[]> {
-  log.debug(`Configuration is: ${JSON.stringify(config, null, 2)}`);
-
-  // Run the generation process with restricted permissions.
-  const href = new URL("./generate.ts", import.meta.url).href;
-  const p = await Deno.run({
-    cmd: [
-      Deno.execPath(),
-      "run",
-      "--allow-read",
-      "--allow-net=deno.land,raw.githubusercontent.com",
-      href,
-    ],
-    stdout: "piped",
-    stderr: "piped",
-    stdin: "piped",
-  });
-
-  const input = JSON.stringify(config);
-  await p.stdin.write(new TextEncoder().encode(input));
-  p.stdin.close();
-
-  // Reading the outputs and closes their pipes
-  const rawOutput = await p.output();
-  const rawError = await p.stderrOutput();
-
-  const { code } = await p.status();
-  p.close();
-
-  if (code !== 0) {
-    const errorString = new TextDecoder().decode(rawError);
-    throw new Error(errorString);
-  }
-
-  const output = new TextDecoder().decode(rawOutput);
-  log.debug(`Generator output: ${output}`);
-  return JSON.parse(output) as Output[];
+export async function processConfiguration(
+  config: Configuration,
+): Promise<Output[]> {
+  return await process<Configuration, Output[]>("./run_config.ts", config);
 }
 
 export async function writeOutput(generated: Output): Promise<void> {
@@ -87,4 +62,65 @@ export async function writeOutput(generated: Output): Promise<void> {
       await child.status;
     });
   }
+}
+
+export async function getTemplateInfo(
+  module: string,
+): Promise<Template> {
+  return await process<string, Template>("./run_template_info.ts", module);
+}
+
+export async function processTemplate(
+  module: string,
+  variables: Variables,
+): Promise<FSStructure> {
+  return await process<ProcessTemplateArgs, FSStructure>(
+    "./run_process_template.ts",
+    {
+      module,
+      variables,
+    },
+  );
+}
+
+async function process<I, O>(
+  url: string,
+  config: I,
+): Promise<O> {
+  log.debug(`Input is: ${JSON.stringify(config, null, 2)}`);
+
+  // Run the generation process with restricted permissions.
+  const href = new URL(url, import.meta.url).href;
+  const p = await Deno.run({
+    cmd: [
+      Deno.execPath(),
+      "run",
+      "--allow-read",
+      "--allow-net=deno.land,raw.githubusercontent.com",
+      href,
+    ],
+    stdout: "piped",
+    stderr: "piped",
+    stdin: "piped",
+  });
+
+  const input = JSON.stringify(config);
+  await p.stdin.write(new TextEncoder().encode(input));
+  p.stdin.close();
+
+  // Reading the outputs and closes their pipes
+  const rawOutput = await p.output();
+  const rawError = await p.stderrOutput();
+
+  const { code } = await p.status();
+  p.close();
+
+  if (code !== 0) {
+    const errorString = new TextDecoder().decode(rawError);
+    throw new Error(errorString);
+  }
+
+  const output = new TextDecoder().decode(rawOutput);
+  log.debug(`Generator output: ${output}`);
+  return JSON.parse(output) as O;
 }

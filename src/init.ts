@@ -1,7 +1,6 @@
 import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
-import * as fs from "https://deno.land/std@0.167.0/fs/mod.ts";
 import * as yaml from "https://deno.land/std@0.167.0/encoding/yaml.ts";
-import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
+import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
 import {
   Confirm,
   ConfirmOptions,
@@ -10,10 +9,30 @@ import {
   Number,
   NumberOptions,
 } from "https://deno.land/x/cliffy@v0.25.5/prompt/mod.ts";
-import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
+import * as eta from "https://deno.land/x/eta@v1.12.3/mod.ts";
 
-import { Template, Variables } from "./config.ts";
-import { existsSync, getInstallDirectories, mkdirAll } from "./utils.ts";
+import { TemplateRegistry, Variables } from "./config.ts";
+import {
+  existsSync,
+  getInstallDirectories,
+  makeRelativeUrl,
+  mkdirAll,
+} from "./utils.ts";
+import { getTemplateInfo, processTemplate } from "./process.ts";
+import { AssetsBuilder } from "./asset_builder.ts";
+
+const templateEngines: Record<
+  string,
+  (temp: string, vars: Variables) => Promise<string>
+> = {
+  "eta": async (temp: string, variables: Variables) => {
+    const result = eta.renderAsync(temp, variables);
+    if (result) {
+      return await result;
+    }
+    throw new Error("template failed");
+  },
+};
 
 export async function initializeProject(
   isNew: boolean,
@@ -22,13 +41,27 @@ export async function initializeProject(
   spec?: string,
   variables: Variables = {},
 ): Promise<void> {
-  if (template.indexOf("..") != -1) {
-    throw new Error(`invalid template ${template}`);
+  if (
+    !(template.startsWith(".") || template.startsWith("http://") ||
+      template.startsWith("https://"))
+  ) {
+    const dirs = await getInstallDirectories();
+    const templateRegistry = path.join(dirs.home, "templates.yaml");
+    const templateListYAML = Deno.readTextFileSync(templateRegistry);
+    const allTemplates = yaml.parse(templateListYAML) as TemplateRegistry;
+    const resolved = allTemplates.templates[template];
+    if (!resolved) {
+      throw new Error(`template ${template} is not installed`);
+    }
+    template = resolved.url;
   }
 
-  const dirs = await getInstallDirectories();
-  const templatePart = template.replaceAll(path.sep, "/");
-  const templatePath = path.join(dirs.templates, templatePart);
+  const url = makeRelativeUrl(template);
+
+  const templateModule = await getTemplateInfo(url.toString());
+  if (!templateModule.info) {
+    throw new Error("template module does not contain info");
+  }
 
   if (isNew) {
     mkdirAll(dir, 0o755);
@@ -36,9 +69,7 @@ export async function initializeProject(
 
   variables = variables || {};
 
-  const templateFile = path.join(templatePath, ".template");
-  const templateData = Deno.readTextFileSync(templateFile);
-  const templateConfig = yaml.parse(templateData) as Template;
+  const templateConfig = templateModule.info;
   templateConfig.variables = templateConfig.variables || [];
 
   // Parse variable types and filter for unresolved variables.
@@ -63,10 +94,8 @@ export async function initializeProject(
 
   // Prompt for unresolved variables from the template.
   for (const variable of unresolved) {
-    if (!variable.message) {
-      variable.message = variable.prompt || variable.description ||
-        `Enter ${variable.name}`;
-    }
+    variable.message = variable.prompt || variable.description ||
+      `Enter ${variable.name}`;
     const type = variable.type || "input";
     switch (type) {
       case "input":
@@ -92,53 +121,50 @@ export async function initializeProject(
   // Default to name variable to directory name.
   variables.name = variables.name || path.basename(path.resolve(dir));
 
-  // Copy files from template directory.
-  const iter = fs.walkSync(templatePath, {
-    followSymlinks: true,
-    skip: [/\W.(template|keep|gitkeep|github|git)$/g],
+  const fsstructure = await processTemplate(template, variables);
+
+  const builder = new AssetsBuilder(url);
+
+  const files = fsstructure.files || [];
+  for (const file of files) {
+    await builder.addFiles(file);
+  }
+
+  // currently, only eta templates are supported.
+  const engineTemplates = (fsstructure.templates || {});
+  for (const engine of Object.keys(engineTemplates)) {
+    const engineFn = templateEngines[engine];
+    if (!engine) {
+      throw new Error(`unknown template engine ${engine}`);
+    }
+    const etaTemplates = engineTemplates[engine] || [];
+    for (const file of etaTemplates) {
+      await builder.addTemplates(
+        async (temp: string) => await engineFn(temp, variables),
+        file,
+      );
+    }
+  }
+
+  const assets = builder.getAssets();
+
+  (fsstructure.directories || []).forEach((newDir) => {
+    if (newDir.indexOf("..") != -1) {
+      throw new Error("invalid directory");
+    }
+
+    mkdirAll(path.join(dir, newDir), 0o755);
   });
 
-  for (const f of iter) {
-    const relPath = path.relative(templatePath, f.path);
-    const filename = path.basename(relPath);
-    const ext = fileExtension(filename);
-    let target = path.join(dir, relPath);
-    if (ext == "tmpl") {
-      target = target.slice(0, -5);
-    }
-
+  for (const file of Object.keys(assets)) {
+    const target = path.join(dir, file);
     if (!isNew && existsSync(target)) {
-      if (f.isFile) {
-        log.info(`${target} already exists. Skipping...`);
-      }
+      log.info(`${target} already exists. Skipping...`);
       continue;
     }
 
-    if (f.isDirectory) {
-      mkdirAll(target, 0o755);
-      continue;
-    }
-
-    let contents = Deno.readTextFileSync(f.path);
-
-    // Handle template file
-    // Very simple variable resolution.
-    // Replace {{ .[varname] }} with value.
-    if (ext == "tmpl") {
-      for (const key of Object.keys(variables)) {
-        const value = variables[key];
-        if (!value) {
-          continue;
-        }
-        const expr = `\\{\\{\\s*\\.${key}\\s*\\}\\}`;
-        contents = contents.replaceAll(
-          new RegExp(expr, "gm"),
-          value.toString(),
-        );
-      }
-    }
-
-    Deno.writeTextFileSync(target, contents);
+    log.info(`Writing ${target}...`);
+    Deno.writeFileSync(target, assets[file]);
   }
 
   // If an existing spec was specified, copy it to the spec location.
