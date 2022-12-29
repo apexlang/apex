@@ -21,8 +21,17 @@ export function existsSync(filePath: string | URL): boolean {
 export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   const dirs = await getInstallDirectories();
   const templateRegistry = path.join(dirs.home, "templates.yaml");
-  const templateListYAML = Deno.readTextFileSync(templateRegistry);
-  return yaml.parse(templateListYAML) as TemplateRegistry;
+  try {
+    const templateListYAML = Deno.readTextFileSync(templateRegistry);
+    return yaml.parse(templateListYAML) as TemplateRegistry;
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) {
+      return {
+        templates: {},
+      } as TemplateRegistry;
+    }
+    throw error;
+  }
 }
 
 export async function templateList(): Promise<InstalledTemplate[]> {
