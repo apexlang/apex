@@ -22,10 +22,8 @@ Deno.test(
     const output = await getTemplateSources(
       testdir,
       templateBase,
-      templateSubdir,
-      "apex-new",
-      undefined,
       variables,
+      { path: templateSubdir },
     );
     assertEquals(output.length, 2);
 

@@ -17,21 +17,16 @@ import { asBytes, asString } from "./utils.ts";
 import { writeOutput } from "./process.ts";
 
 export async function initializeProject(
-  isNew: boolean,
   dest: string,
   template: string,
-  subDir = "",
-  branch = "main",
-  spec?: string,
   variables: Variables = {},
+  options: TemplateOptions = {},
 ): Promise<void> {
   const outputs = await getTemplateSources(
     dest,
     template,
-    subDir,
-    branch,
-    spec,
     variables,
+    options,
   );
   for (const generated of outputs) {
     let exists = false;
@@ -39,7 +34,7 @@ export async function initializeProject(
       const stat = await Deno.stat(generated.path);
       exists = true;
     } catch {}
-    if (exists && !isNew) {
+    if (exists && !options.isNew) {
       log.debug(`Skipping ${generated.path} as it already exists`);
       continue;
     }
@@ -47,13 +42,18 @@ export async function initializeProject(
   }
 }
 
+export interface TemplateOptions {
+  isNew?: boolean;
+  branch?: string;
+  path?: string;
+  spec?: string;
+}
+
 export async function getTemplateSources(
   dest: string,
   template: string,
-  subDir = "",
-  branch = "main",
-  spec?: string,
   variables: Variables = {},
+  options: TemplateOptions = {},
 ): Promise<Output[]> {
   const tmpDir = await Deno.makeTempDir();
 
@@ -62,10 +62,11 @@ export async function getTemplateSources(
     "git",
     "clone",
     `--depth=1`,
-    `--branch=${branch}`,
-    template,
-    tmpDir,
   ];
+  if (options.branch) {
+    cmd.push(`--branch=${options.branch}`);
+  }
+  cmd.push(...[template, tmpDir]);
 
   const process = Deno.run({
     cmd,
@@ -75,7 +76,7 @@ export async function getTemplateSources(
   if (!status.success) {
     throw new Error(`Failed to clone template ${template}`);
   }
-  const realTemplateDir = path.join(tmpDir, subDir);
+  const realTemplateDir = path.join(tmpDir, options.path || "");
 
   const defaultTemplateFile = ".template";
   const templateFilePath = path.join(realTemplateDir, defaultTemplateFile);
@@ -129,10 +130,10 @@ export async function getTemplateSources(
   }
 
   // If an existing spec was specified, register it to copy over.
-  if (spec) {
+  if (options.spec) {
     output.push({
       path: path.join(dest, templateConfig.specLocation || "apex.axdl"),
-      contents: await Deno.readFile(spec),
+      contents: await Deno.readFile(options.spec),
       executable: false,
       mode: 0o644,
     });
