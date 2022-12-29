@@ -26,8 +26,8 @@ Deno.test(
       { path: templateSubdir },
     );
     assertEquals(output.length, 2);
-
-    assertEquals(output[0], {
+    const fileTxt = output.find((o) => o.path.endsWith("file.txt"));
+    assertEquals(fileTxt, {
       path: path.join(testdir, "file.txt"),
       contents: asBytes(
         `This is the ${variables.name} project: ${variables.someVar}`,
@@ -35,7 +35,8 @@ Deno.test(
       executable: false,
       mode: parseInt("100644", 8),
     });
-    assertEquals(output[1], {
+    const fileJs = output.find((o) => o.path.endsWith("file.js"));
+    assertEquals(fileJs, {
       path: path.join(testdir, "file.js"),
       contents: asBytes('console.log("test");\n'),
       executable: false,
