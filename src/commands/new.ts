@@ -8,8 +8,28 @@ export const command = new Command()
   .complete("template", async () => await templateCompletion())
   .arguments("<template:string> <dir:string>")
   .option("-v, --var <item:string>", "define a template variable", varOptions)
+  .option(
+    "-p, --path <string>",
+    "specify a relative path to the template root",
+    { default: "" },
+  )
+  .option(
+    "-b, --branch <string>",
+    "checkout branch before processing template",
+    { default: "main" },
+  )
   .description("Create a new project directory using a template.")
   .action(async (options, template: string, dir: string) => {
     const vars = (options || {}).var || ({} as Variables);
-    await initializeProject(true, dir, template, undefined, vars || {});
+    const subdir = (options || {}).path;
+    const branch = (options || {}).branch;
+    await initializeProject(
+      true,
+      dir,
+      template,
+      subdir,
+      branch,
+      undefined,
+      vars || {},
+    );
   });

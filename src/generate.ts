@@ -56,8 +56,8 @@ export async function processConfig(config: Configuration): Promise<Output[]> {
     const context = new model.Context(visitorConfig, doc);
     context.accept(context, visitor);
     output.push({
-      file,
-      source: writer.string(),
+      path: file,
+      contents: new TextEncoder().encode(writer.string()),
       executable: generatorConfig.executable || false,
       runAfter: generatorConfig.runAfter,
     });
@@ -88,7 +88,12 @@ if (!Deno.isatty(Deno.stdin.rid) && import.meta.main) {
   const content = new TextDecoder().decode(stdinContent);
   try {
     const config = JSON.parse(content) as Configuration;
-    console.log(JSON.stringify(await processConfig(config)));
+    console.log(
+      JSON.stringify(
+        await processConfig(config),
+        (_, v) => v instanceof Uint8Array ? Array.from(v) : v,
+      ),
+    );
   } catch (e) {
     console.error(e);
     throw e;

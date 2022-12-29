@@ -7,11 +7,11 @@ const generator = path.join(__dirname, "test-generator.ts");
 
 export default function (
   doc: apex.ast.Document,
-  config: Configuration
+  config: Configuration,
 ): Configuration {
   config.generates ||= {};
   const interfaces = doc.definitions.filter(
-    (def) => def.getKind() === apex.ast.Kind.InterfaceDefinition
+    (def) => def.getKind() === apex.ast.Kind.InterfaceDefinition,
   ) as apex.ast.InterfaceDefinition[];
   const num = Object.keys(config.generates).length;
   for (const iface of interfaces) {

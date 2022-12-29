@@ -1,6 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.167.0/testing/asserts.ts";
 import { process } from "../src/process.ts";
 import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
+import { asBytes } from "../src/utils.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 
@@ -21,10 +22,10 @@ Deno.test(
     const fixture = await Deno.readTextFile(path.join(__dirname, "fixture.rs"));
     assertEquals(generated, [
       {
-        file: "file.rs",
-        source: fixture,
+        path: "file.rs",
+        contents: asBytes(fixture),
         executable: false,
       },
     ]);
-  }
+  },
 );

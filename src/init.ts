@@ -12,38 +12,182 @@ import {
 } from "https://deno.land/x/cliffy@v0.25.5/prompt/mod.ts";
 import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
 
-import { Template, Variables } from "./config.ts";
-import { existsSync, getInstallDirectories, mkdirAll } from "./utils.ts";
+import { Output, Template, Variable, Variables } from "./config.ts";
+import { asBytes, asString } from "./utils.ts";
+import { writeOutput } from "./process.ts";
 
 export async function initializeProject(
   isNew: boolean,
-  dir: string,
+  dest: string,
   template: string,
+  subDir = "",
+  branch = "main",
   spec?: string,
   variables: Variables = {},
 ): Promise<void> {
-  if (template.indexOf("..") != -1) {
-    throw new Error(`invalid template ${template}`);
+  const outputs = await getTemplateSources(
+    dest,
+    template,
+    subDir,
+    branch,
+    spec,
+    variables,
+  );
+  for (const generated of outputs) {
+    let exists = false;
+    try {
+      const stat = await Deno.stat(generated.path);
+      exists = true;
+    } catch {}
+    if (exists && !isNew) {
+      log.debug(`Skipping ${generated.path} as it already exists`);
+      continue;
+    }
+    await writeOutput(generated);
   }
+}
 
-  const dirs = await getInstallDirectories();
-  const templatePart = template.replaceAll(path.sep, "/");
-  const templatePath = path.join(dirs.templates, templatePart);
+export async function getTemplateSources(
+  dest: string,
+  template: string,
+  subDir = "",
+  branch = "main",
+  spec?: string,
+  variables: Variables = {},
+): Promise<Output[]> {
+  const tmpDir = await Deno.makeTempDir();
 
-  if (isNew) {
-    mkdirAll(dir, 0o755);
+  log.debug(`Using template path ${template}`);
+  const cmd = [
+    "git",
+    "clone",
+    `--depth=1`,
+    `--branch=${branch}`,
+    template,
+    tmpDir,
+  ];
+
+  const process = Deno.run({
+    cmd,
+  });
+  const status = await process.status();
+  process.close();
+  if (!status.success) {
+    throw new Error(`Failed to clone template ${template}`);
   }
+  const realTemplateDir = path.join(tmpDir, subDir);
+
+  const defaultTemplateFile = ".template";
+  const templateFilePath = path.join(realTemplateDir, defaultTemplateFile);
+
+  log.debug(`Looking for template configuration at ${templateFilePath}`);
+  const templateFileSrc = await Deno.readTextFile(templateFilePath).catch(
+    (_) => "",
+  );
+
+  const templateConfig: Template = yaml.parse(templateFileSrc) || {};
 
   variables = variables || {};
 
-  const templateFile = path.join(templatePath, ".template");
-  const templateData = Deno.readTextFileSync(templateFile);
-  const templateConfig = yaml.parse(templateData) as Template;
-  templateConfig.variables = templateConfig.variables || [];
+  const unresolved = mergeVariables(
+    variables || {},
+    templateConfig.variables || [],
+  );
 
-  // Parse variable types and filter for unresolved variables.
-  const unresolved = templateConfig.variables.filter((variable) => {
-    if (variables[variable.name]) {
+  const fromUser = await promptFor(unresolved);
+  Object.assign(variables, fromUser);
+  variables.name = variables.name || path.basename(path.resolve(dest));
+
+  log.debug(`Template variables: ${JSON.stringify(variables)}`);
+
+  // Default the "name" variable to directory name.
+
+  // Copy files from template directory.
+  const iter = fs.walkSync(realTemplateDir, {
+    followSymlinks: true,
+    skip: [/\W.(template|git)$/g],
+  });
+
+  const output: Output[] = [];
+
+  for (const f of iter) {
+    const relPath = path.relative(realTemplateDir, f.path);
+
+    const stat = await Deno.stat(f.path);
+    if (!stat.isFile) continue;
+
+    const src = await Deno.readFile(f.path);
+    const [filename, contents] = processFile(relPath, src, variables);
+    const target = path.join(dest, filename);
+
+    output.push({
+      path: target,
+      contents,
+      mode: stat.mode || undefined,
+      executable: false,
+    });
+  }
+
+  // If an existing spec was specified, register it to copy over.
+  if (spec) {
+    output.push({
+      path: path.join(dest, templateConfig.specLocation || "apex.axdl"),
+      contents: await Deno.readFile(spec),
+      executable: false,
+      mode: 0o644,
+    });
+  }
+  log.debug("Done processing template files");
+  return output;
+}
+
+// Handle template file
+// Very simple variable resolution.
+// Replace {{ .[varname] }} with value.
+export function processFile(
+  path: string,
+  contents: Uint8Array,
+  variables: Record<string, unknown>,
+): [string, Uint8Array] {
+  let target = path;
+  const ext = fileExtension(path);
+  if (ext == "tmpl") {
+    target = target.slice(0, -5);
+    log.debug(`Processing '${path}' as template file`);
+    contents = asBytes(
+      renderTemplate(new TextDecoder().decode(contents), variables),
+    );
+  }
+  return [target, contents];
+}
+
+export function renderTemplate(
+  contents: string,
+  data: Record<string, unknown>,
+): string {
+  for (const key of Object.keys(data)) {
+    const value = data[key];
+    if (!value) {
+      continue;
+    }
+    const expr = `\\{\\{\\s*\\.${key}\\s*\\}\\}`;
+
+    contents = contents.replaceAll(
+      new RegExp(expr, "gm"),
+      value.toString(),
+    );
+  }
+  return contents;
+}
+
+export function mergeVariables(
+  variables: Record<string, unknown>,
+  definitions: Variable[],
+): Variable[] {
+  const unresolved: Variable[] = [];
+
+  for (const variable of definitions) {
+    if (variables[variable.name] === undefined) {
       if (variable.default) {
         const type = variable.type || "input";
         switch (type) {
@@ -54,15 +198,22 @@ export async function initializeProject(
             variables[variable.name] =
               (variable.default as string).toLowerCase() == "true";
             break;
+          default:
+            variables[variable.name] = variable.default;
         }
+        continue;
       }
-      return false;
     }
-    return true;
-  });
+    unresolved.push(variable);
+  }
+  return unresolved;
+}
 
-  // Prompt for unresolved variables from the template.
-  for (const variable of unresolved) {
+async function promptFor(
+  variables: Variable[],
+): Promise<Record<string, unknown>> {
+  const values: Record<string, unknown> = {};
+  for (const variable of variables) {
     if (!variable.message) {
       variable.message = variable.prompt || variable.description ||
         `Enter ${variable.name}`;
@@ -70,17 +221,17 @@ export async function initializeProject(
     const type = variable.type || "input";
     switch (type) {
       case "input":
-        variables[variable.name] = await Input.prompt(
+        values[variable.name] = await Input.prompt(
           variable as unknown as InputOptions,
         );
         break;
       case "number":
-        variables[variable.name] = await Number.prompt(
+        values[variable.name] = await Number.prompt(
           variable as unknown as NumberOptions,
         );
         break;
       case "confirm":
-        variables[variable.name] = await Confirm.prompt(
+        values[variable.name] = await Confirm.prompt(
           variable as unknown as ConfirmOptions,
         );
         break;
@@ -88,66 +239,5 @@ export async function initializeProject(
         throw new Error(`Unexpected variable type ${type}`);
     }
   }
-
-  // Default to name variable to directory name.
-  variables.name = variables.name || path.basename(path.resolve(dir));
-
-  // Copy files from template directory.
-  const iter = fs.walkSync(templatePath, {
-    followSymlinks: true,
-    skip: [/\W.(template|keep|gitkeep|github|git)$/g],
-  });
-
-  for (const f of iter) {
-    const relPath = path.relative(templatePath, f.path);
-    const filename = path.basename(relPath);
-    const ext = fileExtension(filename);
-    let target = path.join(dir, relPath);
-    if (ext == "tmpl") {
-      target = target.slice(0, -5);
-    }
-
-    if (!isNew && existsSync(target)) {
-      if (f.isFile) {
-        log.info(`${target} already exists. Skipping...`);
-      }
-      continue;
-    }
-
-    if (f.isDirectory) {
-      mkdirAll(target, 0o755);
-      continue;
-    }
-
-    let contents = Deno.readTextFileSync(f.path);
-
-    // Handle template file
-    // Very simple variable resolution.
-    // Replace {{ .[varname] }} with value.
-    if (ext == "tmpl") {
-      for (const key of Object.keys(variables)) {
-        const value = variables[key];
-        if (!value) {
-          continue;
-        }
-        const expr = `\\{\\{\\s*\\.${key}\\s*\\}\\}`;
-        contents = contents.replaceAll(
-          new RegExp(expr, "gm"),
-          value.toString(),
-        );
-      }
-    }
-
-    Deno.writeTextFileSync(target, contents);
-  }
-
-  // If an existing spec was specified, copy it to the spec location.
-  if (spec) {
-    Deno.copyFile(
-      spec,
-      path.join(dir, templateConfig.specLocation || "apex.axdl"),
-    );
-  }
-
-  // TODO: Run npm install if needed
+  return values;
 }

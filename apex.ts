@@ -15,23 +15,14 @@ const LEVEL =
   (Deno.env.get("APEX_LOG")?.toUpperCase() as log.LevelName | undefined) ||
   "INFO";
 
-await log.setup({
-  handlers: {
-    console: new log.handlers.ConsoleHandler(LEVEL),
-  },
-  loggers: {
-    default: {
-      level: LEVEL,
-      handlers: ["console"],
-    },
-  },
-});
+await setupLogger(LEVEL);
 
 import * as generate from "./src/commands/generate.ts";
 import * as newCmd from "./src/commands/new.ts";
 import * as init from "./src/commands/init.ts";
 import * as list from "./src/commands/list.ts";
 import * as watch from "./src/commands/watch.ts";
+import { setupLogger } from "./src/utils.ts";
 
 if (
   Deno.args.length == 1 &&

@@ -23,5 +23,5 @@ export const varOptions = {
 };
 
 export async function templateCompletion(): Promise<string[]> {
-  return (await templateList()).map((t) => t.name);
+  return (await templateList()).map((t) => t.name || "");
 }

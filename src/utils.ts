@@ -2,6 +2,7 @@ import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
 import home_dir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";
 import * as yaml from "https://deno.land/std@0.167.0/encoding/yaml.ts";
 import { walkSync } from "https://deno.land/std@0.167.0/fs/mod.ts";
+import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
 
 import { Template } from "./config.ts";
 
@@ -40,7 +41,12 @@ export async function templateList(): Promise<Template[]> {
     });
   }
 
-  return templates.sort((a, b) => new String(a.name).localeCompare(b.name));
+  return templates.sort((a, b) =>
+    new String(a.name).localeCompare(
+      b.name ||
+        "",
+    )
+  );
 }
 
 export interface ApexDirs {
@@ -91,4 +97,26 @@ export function makeRelativeUrl(file: string): URL {
     : file.startsWith("/")
     ? new URL("file:///" + file)
     : new URL(file);
+}
+
+export function asBytes(str: string) {
+  return new TextEncoder().encode(str);
+}
+
+export function asString(bytes: Uint8Array) {
+  return new TextDecoder().decode(bytes);
+}
+
+export async function setupLogger(level: log.LevelName) {
+  await log.setup({
+    handlers: {
+      console: new log.handlers.ConsoleHandler(level),
+    },
+    loggers: {
+      default: {
+        level,
+        handlers: ["console"],
+      },
+    },
+  });
 }
