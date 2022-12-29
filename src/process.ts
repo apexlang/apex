@@ -60,11 +60,14 @@ export async function writeOutput(generated: Output): Promise<void> {
     source = asBytes(await sourceFormatter(asString(source)));
   }
 
-  log.info(`Writing file ${generated.path}`);
+  const mode = generated.mode || parseInt("644", 8);
+  log.info(
+    `Writing file ${generated.path} (mode:${mode.toString(8)})`,
+  );
   const dir = path.dirname(generated.path);
   await Deno.mkdir(dir, { recursive: true });
   await Deno.writeFile(generated.path, source, {
-    mode: generated.mode || 0x644,
+    mode,
   });
 
   // CLI formatting

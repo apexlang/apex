@@ -106,7 +106,7 @@ export async function getTemplateSources(
   // Copy files from template directory.
   const iter = fs.walkSync(realTemplateDir, {
     followSymlinks: true,
-    skip: [/\W.(template|git)$/g],
+    skip: [/\W.(template|gitkeep|git)$/g],
   });
 
   const output: Output[] = [];
