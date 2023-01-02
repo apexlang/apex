@@ -24,8 +24,17 @@ export interface Command {
 }
 
 export interface Output {
-  file: string;
-  source: string;
+  path: string;
+  contents: Uint8Array;
+  mode?: number;
+  executable: boolean;
+  runAfter?: Command[];
+}
+
+export interface JsonOutput {
+  path: string;
+  contents: number[];
+  mode?: number;
   executable: boolean;
   runAfter?: Command[];
 }
@@ -33,7 +42,7 @@ export interface Output {
 /// TEMPLATE FILES
 
 export interface Template {
-  name: string;
+  name?: string;
   description?: string;
   variables?: Variable[];
   specLocation?: string;
@@ -41,10 +50,10 @@ export interface Template {
 
 export interface Variable {
   name: string;
-  message: string;
+  message?: string;
   description?: string;
   type?: "input" | "number" | "confirm";
-  prompt: string;
+  prompt?: string;
   default?: string | number | boolean;
   required: boolean;
   loop: boolean;

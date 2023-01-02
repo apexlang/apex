@@ -2,8 +2,9 @@ import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
 import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
 import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
 
-import { Configuration, Output } from "./config.ts";
+import { Configuration, JsonOutput, Output } from "./config.ts";
 import { cliFormatters, sourceFormatters } from "./formatters.ts";
+import { asBytes, asString } from "./utils.ts";
 
 export async function process(config: Configuration): Promise<Output[]> {
   log.debug(`Configuration is: ${JSON.stringify(config, null, 2)}`);
@@ -41,31 +42,39 @@ export async function process(config: Configuration): Promise<Output[]> {
 
   const output = new TextDecoder().decode(rawOutput);
   log.debug(`Generator output: ${output}`);
-  return JSON.parse(output) as Output[];
+  const fromJson = JSON.parse(output) as JsonOutput[];
+  const parsedOutput = fromJson.map((o: any) => {
+    o.contents = Uint8Array.from(o.contents);
+    return o as Output;
+  });
+  return parsedOutput;
 }
 
 export async function writeOutput(generated: Output): Promise<void> {
-  let source = generated.source;
-  const ext = fileExtension(generated.file).toLowerCase();
+  let source = generated.contents;
+  const ext = fileExtension(generated.path).toLowerCase();
 
   // Source formatting
   const sourceFormatter = sourceFormatters[ext];
   if (sourceFormatter) {
-    source = await sourceFormatter(source);
+    source = asBytes(await sourceFormatter(asString(source)));
   }
 
-  log.info(`Writing file ${generated.file}`);
-  const dir = path.dirname(generated.file);
+  const mode = generated.mode || parseInt("644", 8);
+  log.info(
+    `Writing file ${generated.path} (mode:${mode.toString(8)})`,
+  );
+  const dir = path.dirname(generated.path);
   await Deno.mkdir(dir, { recursive: true });
-  await Deno.writeTextFile(generated.file, source, {
-    mode: generated.executable ? 0o777 : 0o666,
+  await Deno.writeFile(generated.path, source, {
+    mode,
   });
 
   // CLI formatting
   const cliFormatter = cliFormatters[ext];
   if (cliFormatter) {
-    log.info(`Formatting file ${generated.file}`);
-    cliFormatter(generated.file);
+    log.info(`Formatting file ${generated.path}`);
+    cliFormatter(generated.path);
   }
 
   // Execute additional tooling via "runAfter".

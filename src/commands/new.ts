@@ -1,15 +1,35 @@
 import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
 
 import { Variables } from "../config.ts";
-import { initializeProject } from "../init.ts";
+import { initializeProject, TemplateOptions } from "../init.ts";
 import { templateCompletion, varOptions } from "./utils.ts";
 
 export const command = new Command()
   .complete("template", async () => await templateCompletion())
   .arguments("<template:string> <dir:string>")
   .option("-v, --var <item:string>", "define a template variable", varOptions)
+  .option(
+    "-p, --path <string>",
+    "specify a relative path to the template root",
+    { default: "" },
+  )
+  .option(
+    "-b, --branch <string>",
+    "checkout branch before processing template",
+    { default: "main" },
+  )
   .description("Create a new project directory using a template.")
   .action(async (options, template: string, dir: string) => {
     const vars = (options || {}).var || ({} as Variables);
-    await initializeProject(true, dir, template, undefined, vars || {});
+
+    await initializeProject(
+      dir,
+      template,
+      vars || {},
+      {
+        isNew: true,
+        path: options.path,
+        branch: options.branch,
+      },
+    );
   });
