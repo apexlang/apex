@@ -29,10 +29,14 @@ export const cliFormatters: { [filename: string]: CLIFormatter } = {
 
 // deno-lint-ignore require-await
 async function formatJsTs(source: string): Promise<string> {
-  return prettier.format(source, {
-    parser: "typescript",
-    plugins: prettierPlugins,
-  });
+  try {
+    return prettier.format(source, {
+      parser: "typescript",
+      plugins: prettierPlugins,
+    });
+  } catch (_e) {
+    return source;
+  }
 }
 
 const astyleHref = new URL("./astyle.wasm", import.meta.url).href;
