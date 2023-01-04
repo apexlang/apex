@@ -33,6 +33,7 @@ if (
 } else {
   await new Command()
     .default("help")
+    .version("0.8.0")
     .name("apex")
     .description(
       "A code generation tool using Apex, an interface definition language (IDL) for modeling software.",
