@@ -13,7 +13,7 @@ import {
 import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
 
 import { Output, Template, Variable, Variables } from "./config.ts";
-import { asBytes, asString } from "./utils.ts";
+import { asBytes } from "./utils.ts";
 import { writeOutput } from "./process.ts";
 
 export async function initializeProject(
@@ -90,7 +90,7 @@ export async function getTemplateSources(
 
   variables = variables || {};
 
-  const unresolved = mergeVariables(
+  const unresolved = getUnresolved(
     variables || {},
     templateConfig.variables || [],
   );
@@ -181,31 +181,29 @@ export function renderTemplate(
   return contents;
 }
 
-export function mergeVariables(
+export function getUnresolved(
   variables: Record<string, unknown>,
   definitions: Variable[],
 ): Variable[] {
   const unresolved: Variable[] = [];
 
   for (const variable of definitions) {
-    if (variables[variable.name] === undefined) {
-      if (variable.default) {
-        const type = variable.type || "input";
-        switch (type) {
-          case "number":
-            variables[variable.name] = parseFloat(variable.default as string);
-            break;
-          case "confirm":
-            variables[variable.name] =
-              (variable.default as string).toLowerCase() == "true";
-            break;
-          default:
-            variables[variable.name] = variable.default;
-        }
-        continue;
+    const value = variables[variable.name];
+    if (value !== undefined) {
+      // Make sure the value provided on the command line
+      // is the type we expect.
+      const type = variable.type || "input";
+      switch (type) {
+        case "number":
+          variables[variable.name] = parseFloat(value as string);
+          break;
+        case "confirm":
+          variables[variable.name] = ("" + value).toLowerCase() == "true";
+          break;
       }
+    } else {
+      unresolved.push(variable);
     }
-    unresolved.push(variable);
   }
   return unresolved;
 }

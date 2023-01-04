@@ -1,7 +1,7 @@
 import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
 
 import { Variables } from "../config.ts";
-import { initializeProject, TemplateOptions } from "../init.ts";
+import { initializeProject } from "../init.ts";
 import { templateCompletion, varOptions } from "./utils.ts";
 
 export const command = new Command()
