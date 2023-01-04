@@ -24,6 +24,17 @@ import * as list from "./src/commands/list.ts";
 import * as watch from "./src/commands/watch.ts";
 import { setupLogger } from "./src/utils.ts";
 
+// Get version
+const regex = /apexlang\/apex\/([^\/]*)\//gm;
+let version = "edge";
+let m;
+
+if ((m = regex.exec(import.meta.url)) !== null) {
+  m.forEach((match, _groupIndex) => {
+    version = match;
+  });
+}
+
 if (
   Deno.args.length == 1 &&
   Deno.args[0] == "__generate" &&
@@ -33,7 +44,7 @@ if (
 } else {
   await new Command()
     .default("help")
-    .version("0.0.8")
+    .version(version)
     .name("apex")
     .description(
       "A code generation tool using Apex, an interface definition language (IDL) for modeling software.",
