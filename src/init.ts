@@ -31,9 +31,11 @@ export async function initializeProject(
   for (const generated of outputs) {
     let exists = false;
     try {
-      const stat = await Deno.stat(generated.path);
+      const _stat = await Deno.stat(generated.path);
       exists = true;
-    } catch {}
+    } catch (_e) {
+      // Ignore
+    }
     if (exists && !options.isNew) {
       log.debug(`Skipping ${generated.path} as it already exists`);
       continue;

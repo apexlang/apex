@@ -43,6 +43,7 @@ export async function process(config: Configuration): Promise<Output[]> {
   const output = new TextDecoder().decode(rawOutput);
   log.debug(`Generator output: ${output}`);
   const fromJson = JSON.parse(output) as JsonOutput[];
+  // deno-lint-ignore no-explicit-any
   const parsedOutput = fromJson.map((o: any) => {
     o.contents = Uint8Array.from(o.contents);
     return o as Output;
