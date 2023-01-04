@@ -59,9 +59,11 @@ Deno.test(
       required: true,
       loop: false,
     }];
-    const variables = {};
+    const variables = {
+      module: "I am provided",
+    };
     const unresolved = getUnresolved(variables, definitions);
-    assertEquals(variables, { "module": "default value" });
+    assertEquals(variables, { "module": "I am provided" });
     assertEquals(unresolved, [{
       name: "needed",
       description: "a required var",
