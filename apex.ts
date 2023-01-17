@@ -24,16 +24,8 @@ import * as list from "./src/commands/list.ts";
 import * as watch from "./src/commands/watch.ts";
 import { setupLogger } from "./src/utils.ts";
 
-// Get version
-const regex = /apexlang\/apex\/([^\/]*)\//gm;
-let version = "edge";
-let m;
-
-if ((m = regex.exec(import.meta.url)) !== null) {
-  m.forEach((match, _groupIndex) => {
-    version = match;
-  });
-}
+// Version bump this on release.
+const version = "v0.0.11";
 
 if (
   Deno.args.length == 1 &&
@@ -64,6 +56,7 @@ if (
           "--allow-env",
           "--allow-net",
           "--allow-run",
+          "--unstable",
         ],
         provider: [new GithubProvider({ repository: "apexlang/apex" })],
       }),
