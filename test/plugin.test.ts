@@ -40,6 +40,10 @@ Deno.test(
       "Test.0.file": { module: generator },
       "Test.1.file": { module: generator },
     });
+
+    assertEquals(config.tasks, {
+      "start": [`echo "test"`],
+    });
   },
 );
 

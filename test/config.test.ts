@@ -14,7 +14,8 @@ Deno.test(
       generates: {
         "file.rs": {
           module:
-            "https://raw.githubusercontent.com/apexlang/codegen/deno-wip/src/rust/rust-basic.ts",
+            "https://raw.githubusercontent.com/apexlang/codegen/main/src/rust/rust-basic.ts",
+          visitorClass: "RustBasic",
         },
       },
     });

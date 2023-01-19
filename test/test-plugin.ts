@@ -19,5 +19,9 @@ export default function (
       module: generator,
     };
   }
+
+  config.tasks ||= {};
+  config.tasks["start"] = [`echo "test"`];
+
   return config;
 }
