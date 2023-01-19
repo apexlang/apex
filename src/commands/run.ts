@@ -6,6 +6,7 @@ import { fromFiles } from "./generate.ts";
 import { build$, CommandBuilder } from "https://deno.land/x/dax@0.24.1/mod.ts";
 import { Configuration } from "../config.ts";
 import { processPlugins } from "../process.ts";
+import { findApexConfig } from "../utils.ts";
 
 interface Task {
   dependsOn: string[];
@@ -22,7 +23,12 @@ export const command = new Command()
   .description("Run tasks.")
   .action(async (options, tasks: string[]) => {
     const configFile = options.config || "apex.yaml";
-    const taskMap = await loadTasks(configFile);
+    const configPath = findApexConfig(configFile);
+    if (!configPath) {
+      console.log("could not find configuration");
+      Deno.exit(1);
+    }
+    const taskMap = await loadTasks(configPath);
     await runTasks(configFile, taskMap, tasks);
   });
 

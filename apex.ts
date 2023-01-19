@@ -25,7 +25,7 @@ import * as list from "./src/commands/list.ts";
 import * as describe from "./src/commands/describe.ts";
 import * as watch from "./src/commands/watch.ts";
 import * as run from "./src/commands/run.ts";
-import { setupLogger } from "./src/utils.ts";
+import { findApexConfig, setupLogger } from "./src/utils.ts";
 
 // Version bump this on release.
 const version = "v0.0.11";
@@ -74,9 +74,14 @@ if (
 
   // Run target if defined in the config.
   if (args.length > 0 && !cli.getBaseCommand(args[0], true)) {
-    const targetMap = await run.loadTasks("apex.yaml");
+    const configFile = findApexConfig();
+    if (!configFile) {
+      console.log("could not find configuration");
+      Deno.exit(1);
+    }
+    const targetMap = await run.loadTasks(configFile);
     if (targetMap[args[0]]) {
-      await run.runTasks("apex.yaml", targetMap, args);
+      await run.runTasks(configFile, targetMap, args);
       Deno.exit(0);
     }
   }

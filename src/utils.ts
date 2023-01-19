@@ -106,3 +106,28 @@ export async function setupLogger(level: log.LevelName) {
     },
   });
 }
+
+export function findApexConfig(config = "apex.yaml"): string | undefined {
+  try {
+    let dir = Deno.cwd();
+    let p = path.join(dir, config);
+    if (existsSync(p)) {
+      Deno.chdir(path.dirname(p));
+      return p;
+    }
+    while (true) {
+      const prev = dir;
+      dir = path.resolve(dir, "../");
+      if (prev == dir) {
+        return undefined;
+      }
+      p = path.join(dir, config);
+      if (existsSync(p)) {
+        Deno.chdir(dir);
+        return p;
+      }
+    }
+  } catch (_e) {
+    return undefined;
+  }
+}

@@ -46,9 +46,14 @@ export async function process(config: Configuration): Promise<Output[]> {
   const { code } = await p.status();
   p.close();
 
+  const errorString = new TextDecoder().decode(rawError);
+
   if (code !== 0) {
-    const errorString = new TextDecoder().decode(rawError);
     throw new Error(errorString);
+  }
+
+  if (errorString && errorString.length > 0) {
+    console.log(errorString);
   }
 
   const output = new TextDecoder().decode(rawOutput);
@@ -184,9 +189,14 @@ async function processGeneric<I, O>(
   const { code } = await p.status();
   p.close();
 
+  const errorString = new TextDecoder().decode(rawError);
+
   if (code !== 0) {
-    const errorString = new TextDecoder().decode(rawError);
     throw new Error(errorString);
+  }
+
+  if (errorString && errorString.length > 0) {
+    console.log(errorString);
   }
 
   const output = new TextDecoder().decode(rawOutput);
