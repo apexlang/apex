@@ -75,7 +75,6 @@ if (
   // Run target if defined in the config.
   const nonFlagArgs = args.filter((v) => !v.startsWith("-"));
   if (nonFlagArgs.length > 0 && !cli.getBaseCommand(args[0], true)) {
-    console.log(args);
     const configFile = findApexConfig();
     if (!configFile) {
       console.log("could not find configuration");
