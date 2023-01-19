@@ -1,4 +1,4 @@
-import { default as WASI } from "https://deno.land/std@0.167.0/wasi/snapshot_preview1.ts";
+import { default as WASI } from "https://deno.land/std@0.171.0/wasi/snapshot_preview1.ts";
 import { cache } from "https://deno.land/x/cache@0.2.13/mod.ts";
 import { decode, encode } from "./utf8.ts";
 

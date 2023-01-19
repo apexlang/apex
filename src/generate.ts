@@ -1,11 +1,27 @@
-import * as apex from "https://deno.land/x/apex_core@v0.1.1/mod.ts";
-import * as model from "https://deno.land/x/apex_core@v0.1.1/model/mod.ts";
-import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
-import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
-import * as streams from "https://deno.land/std@0.167.0/streams/read_all.ts";
+import * as apex from "https://deno.land/x/apex_core@v0.1.2/mod.ts";
+import * as model from "https://deno.land/x/apex_core@v0.1.2/model/mod.ts";
+import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
+import * as streams from "https://deno.land/std@0.171.0/streams/read_all.ts";
+import * as base64 from "https://deno.land/std@0.171.0/encoding/base64.ts";
 
-import { Config, Configuration, Output } from "./config.ts";
+import {
+  Config,
+  Configuration,
+  Output,
+  Template,
+  TemplateConfig,
+} from "./config.ts";
 import { existsSync, makeRelativeUrl } from "./utils.ts";
+
+export async function processPlugins(
+  config: Configuration,
+): Promise<Configuration> {
+  const apexSource = await Deno.readTextFile(config.spec);
+  // TODO: implement resolver callback
+  const doc = apex.parse(apexSource);
+
+  return await processPlugin(doc, config);
+}
 
 export async function processConfig(config: Configuration): Promise<Output[]> {
   const apexSource = await Deno.readTextFile(config.spec);
@@ -23,7 +39,6 @@ export async function processConfig(config: Configuration): Promise<Output[]> {
       //log.info(`Skipping ${file}`);
       continue;
     }
-    const url = makeRelativeUrl(generatorConfig.module);
 
     const visitorConfig: Config = {};
     if (config.config) {
@@ -38,6 +53,7 @@ export async function processConfig(config: Configuration): Promise<Output[]> {
     }
     visitorConfig["$filename"] = file;
 
+    const url = makeRelativeUrl(generatorConfig.module);
     log.debug(
       `Generating source for '${file}' with generator from ${url} with config\n${
         JSON.stringify(
@@ -47,17 +63,40 @@ export async function processConfig(config: Configuration): Promise<Output[]> {
         )
       }`,
     );
-
     const generator = await import(url.toString());
     const writer = new model.Writer();
-    const visitor = generatorConfig.visitorClass
+    const visitor = (generatorConfig.visitorClass
       ? new generator[generatorConfig.visitorClass](writer)
-      : new generator.default(writer);
+      : new generator.default(writer)) as model.Visitor;
     const context = new model.Context(visitorConfig, doc);
+
+    if (visitor.writeHead) {
+      visitor.writeHead(context);
+    }
+
     context.accept(context, visitor);
+
+    // Appends optional visitor output
+    for (const v of generatorConfig.append || []) {
+      const url = makeRelativeUrl(v.module);
+      log.debug(`Appending source from ${url}`);
+      const generator = await import(url.toString());
+      const visitor = (v.visitorClass
+        ? new generator[v.visitorClass](writer)
+        : new generator.default(writer)) as model.Visitor;
+      context.accept(context, visitor);
+    }
+
+    if (visitor.writeTail) {
+      visitor.writeTail(context);
+    }
+
+    const imports = visitor.renderImports ? visitor.renderImports(context) : "";
+    const content = writer.string().replace("[[IMPORTS SECTION]]", imports);
+
     output.push({
       path: file,
-      contents: new TextEncoder().encode(writer.string()),
+      contents: new TextEncoder().encode(content),
       executable: generatorConfig.executable || false,
       runAfter: generatorConfig.runAfter,
     });
@@ -82,6 +121,17 @@ export async function processPlugin(
   return config;
 }
 
+export async function importTemplate(
+  module: string,
+): Promise<Template> {
+  const url = makeRelativeUrl(module);
+
+  log.debug(`Importing template from ${url}`);
+
+  const template = await import(url.toString());
+  return template.default as TemplateConfig;
+}
+
 // Detect piped input
 if (!Deno.isatty(Deno.stdin.rid) && import.meta.main) {
   const stdinContent = await streams.readAll(Deno.stdin);
@@ -91,7 +141,7 @@ if (!Deno.isatty(Deno.stdin.rid) && import.meta.main) {
     console.log(
       JSON.stringify(
         await processConfig(config),
-        (_, v) => v instanceof Uint8Array ? Array.from(v) : v,
+        (_, v) => v instanceof Uint8Array ? base64.encode(v) : v,
       ),
     );
   } catch (e) {

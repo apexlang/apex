@@ -1,16 +1,16 @@
 import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
-import * as yaml from "https://deno.land/std@0.167.0/encoding/yaml.ts";
-import * as streams from "https://deno.land/std@0.167.0/streams/read_all.ts";
-import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
+import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
+import * as streams from "https://deno.land/std@0.171.0/streams/read_all.ts";
+import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 
 import { Configuration, Output } from "../config.ts";
-import { process, writeOutput } from "../process.ts";
+import { processConfiguration, writeOutput } from "../process.ts";
 
 export const command = new Command()
   .arguments("[...configuration:string[]]")
   .description("Run apex generators from a given configuration.")
   .action(async (_options: unknown, configFiles: string[]) => {
-    configFiles = configFiles || [];
+    configFiles ||= [];
     if (!configFiles.length) {
       configFiles = ["apex.yaml"];
     }
@@ -45,9 +45,11 @@ export async function fromConfig(configContents: string) {
 
   const outputs: Output[] = [];
   for (const config of configs) {
-    const o = await process(config);
+    const o = await processConfiguration(config);
     outputs.push(...o);
   }
 
-  outputs.forEach(async (generated) => await writeOutput(generated));
+  for (const generated of outputs) {
+    await writeOutput(generated);
+  }
 }

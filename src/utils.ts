@@ -1,10 +1,9 @@
-import * as path from "https://deno.land/std@0.167.0/path/mod.ts";
+import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
 import home_dir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";
-import * as yaml from "https://deno.land/std@0.167.0/encoding/yaml.ts";
-import { walkSync } from "https://deno.land/std@0.167.0/fs/mod.ts";
-import * as log from "https://deno.land/std@0.167.0/log/mod.ts";
+import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
+import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 
-import { Template } from "./config.ts";
+import { InstalledTemplate, TemplateRegistry } from "./config.ts";
 
 // This function is copied here because it is deprecated for a reason
 // that does not match ou use case.
@@ -20,38 +19,30 @@ export function existsSync(filePath: string | URL): boolean {
   }
 }
 
-export async function templateList(): Promise<Template[]> {
+export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   const dirs = await getInstallDirectories();
-  // Copy files from template directory.
-  const iter = walkSync(dirs.templates, {
-    followSymlinks: true,
-    match: [/\W.template$/g],
-  });
-
-  const templates: Template[] = [];
-  for (const f of iter) {
-    const name = path
-      .relative(dirs.templates, path.dirname(f.path))
-      .replace("\\", "/");
-    const templateData = Deno.readTextFileSync(f.path);
-    const templateConfig = yaml.parse(templateData) as Template;
-    templates.push({
-      ...templateConfig,
-      name,
-    });
+  const templateRegistry = path.join(dirs.home, "templates.yaml");
+  try {
+    const templateListYAML = Deno.readTextFileSync(templateRegistry);
+    return yaml.parse(templateListYAML) as TemplateRegistry;
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) {
+      return {
+        templates: {},
+      } as TemplateRegistry;
+    }
+    throw error;
   }
+}
 
-  return templates.sort((a, b) =>
-    new String(a.name).localeCompare(
-      b.name ||
-        "",
-    )
-  );
+export async function templateList(): Promise<InstalledTemplate[]> {
+  const allTemplates = await loadTemplateRegistry();
+  const templates = Object.values(allTemplates.templates);
+  return templates.sort((a, b) => new String(a.name).localeCompare(b.name));
 }
 
 export interface ApexDirs {
   home: string;
-  templates: string;
   definitions: string;
 }
 
@@ -62,18 +53,13 @@ export async function getInstallDirectories(): Promise<ApexDirs> {
   }
 
   const apexHome = path.join(homeDirectory, ".apex");
-  const templatesHome = path.join(apexHome, "templates");
   const definitionsHome = path.join(apexHome, "definitions");
 
   await mkdirAll(apexHome, 0o700);
-  await Promise.all([
-    mkdirAll(templatesHome, 0o700),
-    mkdirAll(definitionsHome, 0o700),
-  ]);
+  await mkdirAll(definitionsHome, 0o700);
 
   return {
     home: apexHome,
-    templates: templatesHome,
     definitions: definitionsHome,
   };
 }
@@ -119,4 +105,29 @@ export async function setupLogger(level: log.LevelName) {
       },
     },
   });
+}
+
+export function findApexConfig(config = "apex.yaml"): string | undefined {
+  try {
+    let dir = Deno.cwd();
+    let p = path.join(dir, config);
+    if (existsSync(p)) {
+      Deno.chdir(path.dirname(p));
+      return p;
+    }
+    while (true) {
+      const prev = dir;
+      dir = path.resolve(dir, "../");
+      if (prev == dir) {
+        return undefined;
+      }
+      p = path.join(dir, config);
+      if (existsSync(p)) {
+        Deno.chdir(dir);
+        return p;
+      }
+    }
+  } catch (_e) {
+    return undefined;
+  }
 }
