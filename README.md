@@ -1,12 +1,19 @@
 # Apex CLI
 
-Apex is an interface definition language (IDL) for modeling software. Generate source code, documentation, integration, everything automatically.
+Apex is an interface definition language (IDL) for modeling software. Generate
+source code, documentation, integration, everything automatically.
 
 ### Goals:
 
-- <ins>A</ins>pproachable - Apex was designed from the ground up to be succinct. Interfaces and data types are described using familiar syntax that won't slow you down.
-- <ins>P</ins>rotocol agnostic - Regardless of the architecture, your data and interfaces are fundamentally the same. Use Apex to generate code for any serialization format or protocol.
-- <ins>Ex</ins>tensible - Generators are written in TypeScript. Easily add custom generators that satisfy your unique needs and publish them for everyone to use.
+- <ins>A</ins>pproachable - Apex was designed from the ground up to be succinct.
+  Interfaces and data types are described using familiar syntax that won't slow
+  you down.
+- <ins>P</ins>rotocol agnostic - Regardless of the architecture, your data and
+  interfaces are fundamentally the same. Use Apex to generate code for any
+  serialization format or protocol.
+- <ins>Ex</ins>tensible - Generators are written in TypeScript. Easily add
+  custom generators that satisfy your unique needs and publish them for everyone
+  to use.
 
 For more information, visit [https://apexlang.io](https://apexlang.io).
 
@@ -28,7 +35,7 @@ Output:
 
 ```
   Usage:   apex
-  Version: 0.0.2
+  Version: v0.0.12
 
   Description:
 
@@ -36,15 +43,19 @@ Output:
 
   Options:
 
-    -h, --help  - Show this help.
+    -h, --help     - Show this help.
+    -V, --version  - Show the version number for this program.
 
   Commands:
 
+    install      <location>          - Install templates locally.
     new          <template> <dir>    - Create a new project directory using a template.
     init         <template>          - Initialize a project using a template.
     generate     [configuration...]  - Run apex generators from a given configuration.
     list                             - List available resources.
+    describe                         - Describe available resources.
     watch        [configuration...]  - Watch apex configuration for changes and trigger code generation.
+    run          [tasks...]          - Run tasks.
     upgrade                          - Upgrade apex executable to latest or given version.
     help         [command]           - Show this help or the help of a sub-command.
     completions                      - Generate shell completions.
@@ -52,12 +63,18 @@ Output:
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://github.com/apexlang/apex/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read
+[CONTRIBUTING.md](https://github.com/apexlang/apex/blob/main/CONTRIBUTING.md)
+for details on our code of conduct, and the process for submitting pull requests
+to us.
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/apexlang/apex/tags).
+We use [SemVer](http://semver.org/) for versioning. For the versions available,
+see the [tags on this repository](https://github.com/apexlang/apex/tags).
 
 ## License
 
-This project is licensed under the [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) - see the [LICENSE](LICENSE) file for details
+This project is licensed under the
+[Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) - see the
+[LICENSE](LICENSE) file for details

@@ -28,7 +28,7 @@ import * as run from "./src/commands/run.ts";
 import { findApexConfig, setupLogger } from "./src/utils.ts";
 
 // Version bump this on release.
-const version = "v0.0.11";
+const version = "v0.0.12";
 
 const args = Deno.args;
 
@@ -73,7 +73,9 @@ if (
     .command("completions", new CompletionsCommand());
 
   // Run target if defined in the config.
-  if (args.length > 0 && !cli.getBaseCommand(args[0], true)) {
+  const nonFlagArgs = args.filter((v) => !v.startsWith("-"));
+  if (nonFlagArgs.length > 0 && !cli.getBaseCommand(args[0], true)) {
+    console.log(args);
     const configFile = findApexConfig();
     if (!configFile) {
       console.log("could not find configuration");
