@@ -50,28 +50,14 @@ async function watch(configurations: string[]) {
 
           let confs = specMap[p];
           if (confs) {
-            for (const conf of confs) {
-              try {
-                const outputs = await processConfiguration(conf);
-                outputs.forEach((output) => writeOutput(output));
-              } catch (e) {
-                log.error(e);
-              }
-            }
+            await processAndWrite(confs);
           }
 
           confs = configMap[p];
           if (confs) {
             watcher.close();
             await reloadConfigurations();
-            for (const conf of confs) {
-              try {
-                const outputs = await processConfiguration(conf);
-                outputs.forEach((output) => writeOutput(output));
-              } catch (e) {
-                log.error(e);
-              }
-            }
+            await processAndWrite(confs);
             return;
           }
         }
@@ -137,4 +123,17 @@ async function watch(configurations: string[]) {
       Deno.exit();
     });
   });
+}
+
+async function processAndWrite(confs: Configuration[]) {
+  for (const conf of confs) {
+    try {
+      const outputs = await processConfiguration(conf);
+      for (const output of outputs) {
+        await writeOutput(output);
+      }
+    } catch (e) {
+      log.error(e);
+    }
+  }
 }
