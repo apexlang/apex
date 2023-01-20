@@ -13,12 +13,6 @@ export async function installTemplate(
 
   const module = await getTemplateInfo(url.toString());
   if (module.info) {
-    log.info(`Installing ${module.info.name}...`);
-    registry[module.info.name] = {
-      ...module.info,
-      url: url.toString(),
-    };
-
     // Cache possible files
     let structure: FSStructure | undefined;
     try {
@@ -30,6 +24,12 @@ export async function installTemplate(
     }
 
     if (structure) {
+      log.info(`Installing ${module.info.name}...`);
+      registry[module.info.name] = {
+        ...module.info,
+        url: url.toString(),
+      };
+
       const files = structure.files || [];
       for (let path of files) {
         if (path.indexOf("..") != -1) {
