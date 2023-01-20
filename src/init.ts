@@ -363,6 +363,13 @@ export async function initializeProjectFromTemplate(
 
   const fsstructure = await processTemplate(template, variables);
 
+  // Add dynamic variables
+  if (fsstructure.variables) {
+    for (const key of Object.keys(fsstructure.variables)) {
+      variables[key] = fsstructure.variables[key];
+    }
+  }
+
   const builder = new AssetsBuilder(url);
 
   const files = fsstructure.files || [];
@@ -399,7 +406,7 @@ export async function initializeProjectFromTemplate(
   for (const file of Object.keys(assets)) {
     const target = path.join(dir, file);
     const dirName = path.dirname(target);
-    mkdirAll(dirName, 0o755);
+    await mkdirAll(dirName, 0o755);
 
     if (!isNew && existsSync(target)) {
       log.info(`${target} already exists. Skipping...`);
