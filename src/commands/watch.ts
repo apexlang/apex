@@ -53,7 +53,9 @@ async function watch(configurations: string[]) {
             for (const conf of confs) {
               try {
                 const outputs = await processConfiguration(conf);
-                outputs.forEach((output) => writeOutput(output));
+                for (const output of outputs) {
+                  writeOutput(output);
+                }
               } catch (e) {
                 log.error(e);
               }
@@ -67,7 +69,9 @@ async function watch(configurations: string[]) {
             for (const conf of confs) {
               try {
                 const outputs = await processConfiguration(conf);
-                outputs.forEach((output) => writeOutput(output));
+                for (const output of outputs) {
+                  writeOutput(output);
+                }
               } catch (e) {
                 log.error(e);
               }
