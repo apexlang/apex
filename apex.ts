@@ -26,6 +26,7 @@ import * as describe from "./src/commands/describe.ts";
 import * as watch from "./src/commands/watch.ts";
 import * as run from "./src/commands/run.ts";
 import { findApexConfig, setupLogger } from "./src/utils.ts";
+import { parseConfigYaml } from "./src/config.ts";
 
 // Version bump this on release.
 const version = "v0.0.12";
@@ -75,17 +76,35 @@ if (
   // Run target if defined in the config.
   const nonFlagArgs = args.filter((v) => !v.startsWith("-"));
   if (nonFlagArgs.length > 0 && !cli.getBaseCommand(args[0], true)) {
-    const configFile = findApexConfig();
-    if (!configFile) {
+    const configPath = findApexConfig();
+    if (!configPath) {
       console.log("could not find configuration");
       Deno.exit(1);
     }
-    const targetMap = await run.loadTasks(configFile);
-    if (targetMap[args[0]]) {
-      await run.runTasks(configFile, targetMap, args);
-      Deno.exit(0);
+    let config;
+    try {
+      config = await Deno.readTextFile(configPath);
+    } catch (_e) {
+      log.error(`Could not read config ${configPath}`);
+      Deno.exit(1);
     }
+    try {
+      const configs = parseConfigYaml(config);
+      for (const cfg of configs) {
+        const taskMap = await run.loadTasks(cfg);
+        await run.runTasks(cfg, taskMap, nonFlagArgs, configs.length == 1);
+      }
+    } catch (e) {
+      log.error(e);
+      Deno.exit(1);
+    }
+    Deno.exit(0);
   }
 
-  await cli.parse(args);
+  try {
+    await cli.parse(args);
+  } catch (e) {
+    log.error(e);
+    Deno.exit(1);
+  }
 }
