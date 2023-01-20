@@ -66,6 +66,7 @@ export interface ProcessTemplateArgs {
 export type Assets = Record<string, Uint8Array>;
 
 export interface FSStructure {
+  variables?: Record<string, string | number | boolean>;
   files?: string[];
   directories?: string[];
   templates?: { [engine: string]: string[] };

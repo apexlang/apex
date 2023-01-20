@@ -363,6 +363,13 @@ export async function initializeProjectFromTemplate(
 
   const fsstructure = await processTemplate(template, variables);
 
+  // Add dynamic variables
+  if (fsstructure.variables) {
+    for (const key of Object.keys(fsstructure.variables)) {
+      variables[key] = fsstructure.variables[key];
+    }
+  }
+
   const builder = new AssetsBuilder(url);
 
   const files = fsstructure.files || [];
