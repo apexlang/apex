@@ -1,0 +1,7 @@
+spec: ''
+tasks:
+  test > b:
+    - echo Hello World
+  c: &c
+    - 'echo From c'
+  b: *c
