@@ -10,6 +10,7 @@ import { CmdOutput, Task } from "../task.ts";
 export interface RunOptions {
   config?: string;
   quiet?: boolean;
+  failUndefined?: boolean;
 }
 
 export const command = new Command()
@@ -22,6 +23,10 @@ export const command = new Command()
   .option(
     "-q, --quiet",
     "silence extraneous apex output",
+  )
+  .option(
+    "--fail-undefined",
+    "when there are multiple configurations, force the command to fail if a task is not defined",
   )
   .description("Run tasks.")
   .action(async (options: RunOptions, tasks: string[]) => {
@@ -42,7 +47,13 @@ export const command = new Command()
     const configs = parseConfigYaml(config);
     for (const cfg of configs) {
       const taskMap = await loadTasks(cfg);
-      await runTasks(cfg, taskMap, tasks, configs.length == 1, options);
+      await runTasks(
+        cfg,
+        taskMap,
+        tasks,
+        configs.length == 1 || options.failUndefined == true,
+        options,
+      );
     }
   });
 
