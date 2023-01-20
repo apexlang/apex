@@ -10,6 +10,7 @@ import { CmdOutput, Task } from "../task.ts";
 export interface RunOptions {
   config?: string;
   quiet?: boolean;
+  failUndefined?: boolean;
 }
 
 export const command = new Command()
@@ -22,6 +23,10 @@ export const command = new Command()
   .option(
     "-q, --quiet",
     "silence extraneous apex output",
+  )
+  .option(
+    "--fail-undefined",
+    "when there are multiple configurations, force the command to fail if a task is not defined",
   )
   .description("Run tasks.")
   .action(async (options: RunOptions, tasks: string[]) => {
@@ -36,12 +41,19 @@ export const command = new Command()
       config = await Deno.readTextFile(configPath);
     } catch (_e) {
       log.error(`Could not read config ${configPath}`);
-      return {};
+      Deno.exit(1);
     }
+
     const configs = parseConfigYaml(config);
     for (const cfg of configs) {
       const taskMap = await loadTasks(cfg);
-      await runTasks(cfg, taskMap, tasks, options);
+      await runTasks(
+        cfg,
+        taskMap,
+        tasks,
+        configs.length == 1 || options.failUndefined == true,
+        options,
+      );
     }
   });
 
@@ -94,6 +106,7 @@ export async function runTasks(
   config: Configuration,
   taskMap: Record<string, Task>,
   tasks: string[] = [],
+  taskNotFoundError = true,
   opts: RunOptions = {},
 ): Promise<Record<string, CmdOutput> | undefined> {
   if (tasks.length === 0) {
@@ -101,7 +114,7 @@ export async function runTasks(
     tasks = defaultTask ? [defaultTask] : [];
   }
 
-  if (!tasks.length) {
+  if (taskNotFoundError && !tasks.length) {
     log.error(`no tasks defined`);
     return;
   }
@@ -109,7 +122,7 @@ export async function runTasks(
   const hasRun = new Set<string>();
 
   for (const t of tasks) {
-    await run(config, hasRun, taskMap, t, opts);
+    await run(config, hasRun, taskMap, t, taskNotFoundError, opts);
   }
 }
 
@@ -118,6 +131,7 @@ async function run(
   hasRun: Set<string>,
   taskMap: Record<string, Task>,
   task: string,
+  taskNotFoundError = true,
   opts: RunOptions = {},
 ): Promise<Record<string, CmdOutput> | undefined> {
   if (hasRun.has(task)) {
@@ -134,11 +148,15 @@ async function run(
       return;
     }
 
-    throw new Error(`task not defined: "${task}"`);
+    if (taskNotFoundError) {
+      throw new Error(`task not defined: "${task}"`);
+    } else {
+      return;
+    }
   }
 
   for (const d of t.deps) {
-    await run(config, hasRun, taskMap, d, opts);
+    await run(config, hasRun, taskMap, d, taskNotFoundError, opts);
   }
 
   const env = {
