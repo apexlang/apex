@@ -9,7 +9,16 @@ export async function installTemplate(
   registry: TemplateMap,
   location: string,
 ) {
-  const url = makeRelativeUrl(location);
+  let url = makeRelativeUrl(location);
+
+  // Determine if URL redirects and possible use the
+  // location with the version included (e.g. deno.land/x).
+  if (["http", "https"].indexOf(url.protocol) != -1) {
+    const resp = await fetch(url);
+    if (resp.redirected) {
+      url = new URL(resp.url);
+    }
+  }
 
   const module = await getTemplateInfo(url.toString());
   if (module.info) {
