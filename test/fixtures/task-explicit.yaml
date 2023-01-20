@@ -1,0 +1,9 @@
+spec: ''
+tasks:
+  test:
+    cmds:
+      - echo Hello World
+    deps:
+      - b
+  b:
+    - echo "From b"

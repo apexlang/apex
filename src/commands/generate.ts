@@ -1,9 +1,8 @@
 import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
-import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
 import * as streams from "https://deno.land/std@0.171.0/streams/read_all.ts";
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 
-import { Configuration, Output } from "../config.ts";
+import { Configuration, Output, parseConfigYaml } from "../config.ts";
 import { processConfiguration, writeOutput } from "../process.ts";
 
 export const command = new Command()
@@ -26,23 +25,19 @@ export async function fromFiles(...configFiles: string[]) {
       log.error(`Could not read config ${configFile}`);
       throw e;
     }
-    await fromConfig(configContents);
+    const configs = parseConfigYaml(configContents);
+    await fromConfigs(configs);
   }
 }
 
 export async function fromStdin() {
   const stdinContent = await streams.readAll(Deno.stdin);
   const content = new TextDecoder().decode(stdinContent);
-  await fromConfig(content);
+  const configs = parseConfigYaml(content);
+  await fromConfigs(configs);
 }
 
-export async function fromConfig(configContents: string) {
-  // TODO: need to validate yaml for a TS interface rather than assume it's OK.
-  const configs = configContents
-    .split("---")
-    .map((v) => v.trim())
-    .map((v) => yaml.parse(v) as Configuration);
-
+export async function fromConfigs(configs: Configuration[]) {
   const outputs: Output[] = [];
   for (const config of configs) {
     const o = await processConfiguration(config);

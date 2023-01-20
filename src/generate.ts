@@ -16,9 +16,14 @@ import { existsSync, makeRelativeUrl } from "./utils.ts";
 export async function processPlugins(
   config: Configuration,
 ): Promise<Configuration> {
-  const apexSource = await Deno.readTextFile(config.spec);
-  // TODO: implement resolver callback
-  const doc = apex.parse(apexSource);
+  let doc;
+  try {
+    const apexSource = await Deno.readTextFile(config.spec);
+    // TODO: implement resolver callback
+    doc = apex.parse(apexSource);
+  } catch {
+    doc = new apex.ast.Document(undefined, []);
+  }
 
   return await processPlugin(doc, config);
 }

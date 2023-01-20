@@ -131,3 +131,25 @@ export function findApexConfig(config = "apex.yaml"): string | undefined {
     return undefined;
   }
 }
+
+export function flatten(prefix: string, obj: any): any {
+  if (obj === null || obj === undefined) {
+    return { [prefix]: "" };
+  } else if (typeof obj === "string") {
+    return { [prefix]: obj };
+  } else if (Array.isArray(obj)) {
+    const result: any = {};
+    for (let i = 0; i < obj.length; i++) {
+      Object.assign(result, flatten(`${prefix}_${i}`, obj[i]));
+    }
+    return result;
+  } else if (typeof obj === "object") {
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+      Object.assign(result, flatten(`${prefix}_${key}`, value));
+    }
+    return result;
+  } else {
+    return { [prefix]: obj.toString() };
+  }
+}

@@ -1,0 +1,6 @@
+spec: ''
+tasks:
+  test > b:
+    - echo Hello World
+  b:
+    - echo "From b"

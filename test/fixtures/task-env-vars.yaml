@@ -1,0 +1,4 @@
+spec: ''
+tasks:
+  test:
+    - echo Hello $NAME

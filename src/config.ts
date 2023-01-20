@@ -1,3 +1,6 @@
+import { TaskConfig } from "./task.ts";
+import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
+
 export type Config = { [key: string]: unknown };
 
 /// MAIN CONFIG
@@ -7,8 +10,10 @@ export interface Configuration {
   config?: Config;
   plugins?: string[];
   generates?: Record<string, Target>;
-  tasks?: Record<string, string[]>;
+  tasks?: Record<string, TaskDefinition>;
 }
+
+export type TaskDefinition = string[] | TaskConfig;
 
 export interface Target {
   module: string;
@@ -105,3 +110,11 @@ export interface Variable {
 }
 
 export type Variables = Record<string, string | number | boolean | undefined>;
+
+// TODO: need to validate yaml for a TS interface rather than assume it's OK.
+export function parseConfigYaml(contents: string): Configuration[] {
+  return contents
+    .split("---\n")
+    .map((v) => v.trim())
+    .map((v) => yaml.parse(v) as Configuration);
+}
