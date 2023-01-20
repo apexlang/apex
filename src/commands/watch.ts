@@ -1,5 +1,6 @@
 import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
 import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
+import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
 
 import { Configuration } from "../config.ts";
@@ -49,20 +50,28 @@ async function watch(configurations: string[]) {
 
           let confs = specMap[p];
           if (confs) {
-            confs.forEach(async (conf) => {
-              const outputs = await processConfiguration(conf);
-              outputs.forEach((output) => writeOutput(output));
-            });
+            for (const conf of confs) {
+              try {
+                const outputs = await processConfiguration(conf);
+                outputs.forEach((output) => writeOutput(output));
+              } catch (e) {
+                log.error(e);
+              }
+            }
           }
 
           confs = configMap[p];
           if (confs) {
             watcher.close();
             await reloadConfigurations();
-            confs.forEach(async (conf) => {
-              const outputs = await processConfiguration(conf);
-              outputs.forEach((output) => writeOutput(output));
-            });
+            for (const conf of confs) {
+              try {
+                const outputs = await processConfiguration(conf);
+                outputs.forEach((output) => writeOutput(output));
+              } catch (e) {
+                log.error(e);
+              }
+            }
             return;
           }
         }
