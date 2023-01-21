@@ -38,7 +38,7 @@ if (
     .version(version)
     .name("apex")
     .description(
-      "A code generation tool using Apex, an interface definition language (IDL) for modeling software.",
+      "A complete project tool suite based on Apexlang, an interface definition language (IDL) for modeling software.",
     )
     .command("install", install.command)
     .command("new", newCmd.command)

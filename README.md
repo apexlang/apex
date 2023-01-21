@@ -48,7 +48,7 @@ Output:
 
   Description:
 
-    A code generation tool using Apex, an interface definition language (IDL) for modeling software.
+    A code generation tool using Apexlang, an interface definition language (IDL) for modeling software.
 
   Options:
 
@@ -60,10 +60,10 @@ Output:
     install      <location>          - Install templates locally.
     new          <template> <dir>    - Create a new project directory using a template.
     init         <template>          - Initialize a project using a template.
-    generate     [configuration...]  - Run apex generators from a given configuration.
+    generate     [configuration...]  - Run Apexlang generators from a given configuration.
     list                             - List available resources.
     describe                         - Describe available resources.
-    watch        [configuration...]  - Watch apex configuration for changes and trigger code generation.
+    watch        [configuration...]  - Watch configuration for changes and trigger code generation.
     run          [tasks...]          - Run tasks.
     upgrade                          - Upgrade apex executable to latest or given version.
     help         [command]           - Show this help or the help of a sub-command.
@@ -80,8 +80,8 @@ apex test
 
 ## Development
 
-To run the development version of apex, use the `apex` script in the root of
-this repository, e.g.
+To run the development version of the `apex` CLI, use the `apex` script in the
+root of this repository, e.g.
 
 ```sh
 ./apex help

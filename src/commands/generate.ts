@@ -7,7 +7,7 @@ import { processConfiguration, writeOutput } from "../process.ts";
 
 export const command = new Command()
   .arguments("[...configuration:string[]]")
-  .description("Run apex generators from a given configuration.")
+  .description("Run Apexlang generators from a given configuration.")
   .action(async (_options: unknown, configFiles: string[]) => {
     configFiles ||= [];
     if (!configFiles.length) {
