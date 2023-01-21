@@ -3,7 +3,7 @@ import home_dir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";
 import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 
-import { InstalledTemplate, TemplateRegistry } from "./config.ts";
+import { Template, TemplateRegistry } from "./config.ts";
 
 // This function is copied here because it is deprecated for a reason
 // that does not match ou use case.
@@ -35,10 +35,9 @@ export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   }
 }
 
-export async function templateList(): Promise<InstalledTemplate[]> {
+export async function templateList(): Promise<Record<string, Template>> {
   const allTemplates = await loadTemplateRegistry();
-  const templates = Object.values(allTemplates.templates);
-  return templates.sort((a, b) => new String(a.name).localeCompare(b.name));
+  return allTemplates.templates;
 }
 
 export interface ApexDirs {
@@ -132,13 +131,13 @@ export function findApexConfig(config = "apex.yaml"): string | undefined {
   }
 }
 
-export function flatten(prefix: string, obj: any): any {
+export function flatten(prefix: string, obj: unknown): unknown {
   if (obj === null || obj === undefined) {
     return { [prefix]: "" };
   } else if (typeof obj === "string") {
     return { [prefix]: obj };
   } else if (Array.isArray(obj)) {
-    const result: any = {};
+    const result = {};
     for (let i = 0; i < obj.length; i++) {
       Object.assign(result, flatten(`${prefix}_${i}`, obj[i]));
     }

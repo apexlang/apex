@@ -1,5 +1,5 @@
-import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
-import { Row, Table } from "https://deno.land/x/cliffy@v0.25.5/table/mod.ts";
+import { Command } from "../deps/cliffy.ts";
+import * as ui from "../ui.ts";
 
 import { loadTemplateRegistry } from "../utils.ts";
 import { templateCompletion } from "./utils.ts";
@@ -11,7 +11,7 @@ export const templates = new Command()
   .action(async (_options, template: string) => {
     const registry = await loadTemplateRegistry();
     const temp = registry.templates[template];
-    if (!template) {
+    if (!temp) {
       throw new Error(`template ${template} is not installed`);
     }
 
@@ -23,14 +23,7 @@ export const templates = new Command()
     const variables = temp.variables || [];
     if (variables.length > 0) {
       console.log("\nVariables:");
-      new Table()
-        .header(Row.from(["Name", "Description", "Default"]).border(true))
-        .body(
-          variables.map((
-            t,
-          ) => [t.name, t.description || "", (t.default || "").toString()]),
-        )
-        .render();
+      ui.listToTable(variables, ["description", "default"]);
     }
   });
 

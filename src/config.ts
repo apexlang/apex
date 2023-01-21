@@ -1,5 +1,7 @@
 import { TaskConfig } from "./task.ts";
 import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
+import { findApexConfig } from "./utils.ts";
+import { log } from "./deps/log.ts";
 
 export type Config = { [key: string]: unknown };
 
@@ -117,5 +119,22 @@ export function parseConfigYaml(contents: string): Configuration[] {
   return contents
     .split("---\n")
     .map((v) => v.trim())
-    .map((v) => yaml.parse(v) as Configuration);
+    .map((v) => (yaml.parse(v) || {}) as Configuration);
+}
+
+export async function findConfigFile(filePath?: string): Promise<string> {
+  const configFile = filePath || "apex.yaml";
+  const configPath = findApexConfig(configFile);
+  if (!configPath) {
+    console.log("could not find configuration");
+    Deno.exit(1);
+  }
+  let config;
+  try {
+    config = await Deno.readTextFile(configPath);
+  } catch (_e) {
+    log.error(`Could not read config ${configPath}`);
+    Deno.exit(1);
+  }
+  return config;
 }

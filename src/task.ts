@@ -13,6 +13,7 @@ export interface CmdOutput {
 
 export class Task {
   runner = TaskRunner.Dax;
+  description?: string;
   deps: string[] = [];
   cmds: string[] = [];
 
@@ -20,6 +21,7 @@ export class Task {
     this.runner = config.runner || TaskRunner.Dax;
     this.deps = config.deps || [];
     this.cmds = config.cmds || [];
+    this.description = config.description || "";
   }
 
   async run(

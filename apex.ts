@@ -1,14 +1,7 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run --unstable
 
-import {
-  Command,
-  CompletionsCommand,
-  HelpCommand,
-} from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
-import {
-  GithubProvider,
-  UpgradeCommand,
-} from "https://deno.land/x/cliffy@v0.25.5/command/upgrade/mod.ts";
+import { Command, CompletionsCommand, HelpCommand } from "./src/deps/cliffy.ts";
+import { GithubProvider, UpgradeCommand } from "./src/deps/cliffy.ts";
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 
 const LEVEL =
@@ -78,7 +71,7 @@ if (
   if (nonFlagArgs.length > 0 && !cli.getBaseCommand(args[0], true)) {
     const configPath = findApexConfig();
     if (!configPath) {
-      console.log("could not find configuration");
+      log.error("could not find configuration");
       Deno.exit(1);
     }
     let config;

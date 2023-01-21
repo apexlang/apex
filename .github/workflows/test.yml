@@ -1,4 +1,4 @@
-name: Test Deno Module
+name: Apex tests
 
 on:
   push:
@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: extractions/setup-just@v1
       - uses: actions/checkout@v2
       - uses: denolib/setup-deno@v2
       - name: Run tests
-        run: just test
+        run: ./apex test

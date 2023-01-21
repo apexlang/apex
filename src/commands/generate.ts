@@ -1,4 +1,4 @@
-import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
+import { Command } from "../deps/cliffy.ts";
 import * as streams from "https://deno.land/std@0.171.0/streams/read_all.ts";
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 
