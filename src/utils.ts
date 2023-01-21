@@ -3,7 +3,7 @@ import home_dir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";
 import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 
-import { Template, TemplateRegistry } from "./config.ts";
+import { InstalledTemplate, TemplateRegistry } from "./config.ts";
 
 // This function is copied here because it is deprecated for a reason
 // that does not match ou use case.
@@ -24,7 +24,9 @@ export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   const templateRegistry = path.join(dirs.home, "templates.yaml");
   try {
     const templateListYAML = Deno.readTextFileSync(templateRegistry);
-    return yaml.parse(templateListYAML) as TemplateRegistry;
+    const registry = yaml.parse(templateListYAML) as TemplateRegistry;
+    calulateVersions(registry);
+    return registry;
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
       return {
@@ -35,7 +37,29 @@ export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   }
 }
 
-export async function templateList(): Promise<Record<string, Template>> {
+const versionRegex = /@(v[0-9][^\/]*)\//gm;
+
+function calulateVersions(registry: TemplateRegistry) {
+  for (const tmpl of Object.values(registry.templates)) {
+    if (tmpl.version) {
+      continue;
+    }
+
+    // Get version
+    let m;
+    if ((m = versionRegex.exec(tmpl.url)) !== null) {
+      m.forEach((match, groupIndex) => {
+        if (groupIndex == 1) {
+          tmpl.version = match;
+        }
+      });
+    }
+  }
+}
+
+export async function templateList(): Promise<
+  Record<string, InstalledTemplate>
+> {
   const allTemplates = await loadTemplateRegistry();
   return allTemplates.templates;
 }

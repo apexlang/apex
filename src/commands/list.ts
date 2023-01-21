@@ -8,7 +8,7 @@ export const templates = new Command()
   .description("List installed templates.")
   .action(async (_options) => {
     const templates = await templateList();
-    ui.objToTable(templates, ["description"]);
+    ui.objToTable(templates, ["version", "description"]);
   });
 
 export const tasks = new Command()

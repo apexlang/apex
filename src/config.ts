@@ -59,6 +59,7 @@ export type TemplateMap = Record<string, InstalledTemplate>;
 
 export interface InstalledTemplate extends TemplateInfo {
   url: string;
+  version?: string;
 }
 
 export interface TemplateRegistry {
