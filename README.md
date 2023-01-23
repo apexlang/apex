@@ -28,7 +28,9 @@ deno install -A --unstable -f -n apex https://deno.land/x/apex_cli/apex.ts
 To install from source, clone this repository and run `./apex run install`
 
 ```sh
-git clone git@github.com:apexlang/apex.git && cd apex && ./apex install
+git clone https://github.com/apexlang/apex.git
+cd apex
+./apex install # or deno install -A --unstable ./apex.ts
 ```
 
 ## Usage
