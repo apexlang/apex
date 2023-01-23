@@ -1,20 +1,22 @@
-import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
+import { Command } from "../deps/cliffy.ts";
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 import { fromConfigs } from "./generate.ts";
+import * as ui from "../ui.ts";
 
-import { Configuration, parseConfigYaml } from "../config.ts";
+import { Configuration, findConfigFile, parseConfigYaml } from "../config.ts";
 import { processPlugins } from "../process.ts";
-import { findApexConfig, flatten } from "../utils.ts";
+import { flatten } from "../utils.ts";
 import { CmdOutput, Task } from "../task.ts";
 
 export interface RunOptions {
   config?: string;
   quiet?: boolean;
   failUndefined?: boolean;
+  list?: boolean;
 }
 
 export const command = new Command()
-  .arguments("[...tasks:string[]]")
+  .arguments("[...tasks]")
   .option(
     "-c, --config <string>",
     "specify an Apex configuration",
@@ -25,37 +27,37 @@ export const command = new Command()
     "silence extraneous apex output",
   )
   .option(
+    "-l, --list",
+    "list tasks",
+  )
+  .option(
     "--fail-undefined",
     "when there are multiple configurations, force the command to fail if a task is not defined",
   )
   .description("Run tasks.")
-  .action(async (options: RunOptions, tasks: string[]) => {
-    const configFile = options.config || "apex.yaml";
-    const configPath = findApexConfig(configFile);
-    if (!configPath) {
-      console.log("could not find configuration");
-      Deno.exit(1);
-    }
-    let config;
-    try {
-      config = await Deno.readTextFile(configPath);
-    } catch (_e) {
-      log.error(`Could not read config ${configPath}`);
-      Deno.exit(1);
-    }
+  .action(action);
 
-    const configs = parseConfigYaml(config);
-    for (const cfg of configs) {
-      const taskMap = await loadTasks(cfg);
-      await runTasks(
-        cfg,
-        taskMap,
-        tasks,
-        configs.length == 1 || options.failUndefined == true,
-        options,
-      );
+export async function action(
+  options: RunOptions,
+  ...tasks: string[]
+) {
+  const config = await findConfigFile(options.config);
+  const configs = parseConfigYaml(config);
+  for (const cfg of configs) {
+    const taskMap = await loadTasks(cfg);
+    if (options.list) {
+      ui.objToTable(taskMap, ["description"]);
+      continue;
     }
-  });
+    await runTasks(
+      cfg,
+      taskMap,
+      tasks,
+      configs.length == 1 || options.failUndefined == true,
+      options,
+    );
+  }
+}
 
 export function parseTasks(
   config: Configuration,
@@ -98,7 +100,6 @@ export async function loadTasks(
   config: Configuration,
 ): Promise<Record<string, Task>> {
   config = await processPlugins(config);
-
   return parseTasks(config);
 }
 

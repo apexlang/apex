@@ -1,0 +1,10 @@
+tasks:
+  test:
+    description: Run tests
+    cmds:
+      - deno fmt --check src/ test/
+      - deno test --unstable -A
+  install:
+    description: Install apex
+    cmds:
+      - deno install -f -A --unstable ./apex.ts

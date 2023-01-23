@@ -1,4 +1,4 @@
-import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
+import { Command } from "../deps/cliffy.ts";
 
 import { Variables } from "../config.ts";
 import {

@@ -9,7 +9,7 @@ import {
   InputOptions,
   Number,
   NumberOptions,
-} from "https://deno.land/x/cliffy@v0.25.5/prompt/mod.ts";
+} from "./deps/cliffy.ts";
 import * as eta from "https://deno.land/x/eta@v1.12.3/mod.ts";
 
 import {

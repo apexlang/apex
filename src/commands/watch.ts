@@ -1,4 +1,4 @@
-import { Command } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
+import { Command } from "../deps/cliffy.ts";
 import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
@@ -9,7 +9,7 @@ import { processConfiguration, writeOutput } from "../process.ts";
 export const command = new Command()
   .arguments("[...configuration:string[]]")
   .description(
-    "Watch apex configuration for changes and trigger code generation.",
+    "Watch configuration for changes and trigger code generation.",
   )
   .action(async (_options: unknown, configFiles: string[]) => {
     configFiles = configFiles || [];

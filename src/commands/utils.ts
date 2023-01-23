@@ -1,4 +1,4 @@
-import { ValidationError } from "https://deno.land/x/cliffy@v0.25.5/command/mod.ts";
+import { ValidationError } from "../deps/cliffy.ts";
 import { templateList } from "../utils.ts";
 
 export const varOptions = {
@@ -23,5 +23,5 @@ export const varOptions = {
 };
 
 export async function templateCompletion(): Promise<string[]> {
-  return (await templateList()).map((t) => t.name || "");
+  return Object.values(await templateList()).map((t) => t.name || "");
 }

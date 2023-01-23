@@ -24,7 +24,9 @@ export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   const templateRegistry = path.join(dirs.home, "templates.yaml");
   try {
     const templateListYAML = Deno.readTextFileSync(templateRegistry);
-    return yaml.parse(templateListYAML) as TemplateRegistry;
+    const registry = yaml.parse(templateListYAML) as TemplateRegistry;
+    calulateVersions(registry);
+    return registry;
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
       return {
@@ -35,10 +37,31 @@ export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   }
 }
 
-export async function templateList(): Promise<InstalledTemplate[]> {
+const versionRegex = /@(v[0-9][^\/]*)\//gm;
+
+function calulateVersions(registry: TemplateRegistry) {
+  for (const tmpl of Object.values(registry.templates)) {
+    if (tmpl.version) {
+      continue;
+    }
+
+    // Get version
+    let m;
+    if ((m = versionRegex.exec(tmpl.url)) !== null) {
+      m.forEach((match, groupIndex) => {
+        if (groupIndex == 1) {
+          tmpl.version = match;
+        }
+      });
+    }
+  }
+}
+
+export async function templateList(): Promise<
+  Record<string, InstalledTemplate>
+> {
   const allTemplates = await loadTemplateRegistry();
-  const templates = Object.values(allTemplates.templates);
-  return templates.sort((a, b) => new String(a.name).localeCompare(b.name));
+  return allTemplates.templates;
 }
 
 export interface ApexDirs {
@@ -132,13 +155,13 @@ export function findApexConfig(config = "apex.yaml"): string | undefined {
   }
 }
 
-export function flatten(prefix: string, obj: any): any {
+export function flatten(prefix: string, obj: unknown): unknown {
   if (obj === null || obj === undefined) {
     return { [prefix]: "" };
   } else if (typeof obj === "string") {
     return { [prefix]: obj };
   } else if (Array.isArray(obj)) {
-    const result: any = {};
+    const result = {};
     for (let i = 0; i < obj.length; i++) {
       Object.assign(result, flatten(`${prefix}_${i}`, obj[i]));
     }

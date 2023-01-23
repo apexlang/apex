@@ -1,31 +1,42 @@
-# Apex CLI
+# Apexlang CLI
 
-Apex is an interface definition language (IDL) for modeling software. Generate
-source code, documentation, integration, everything automatically.
+The `apex` CLI is a one-stop shop for all projects across all languages.
 
-### Goals:
+It's a
 
-- <ins>A</ins>pproachable - Apex was designed from the ground up to be succinct.
-  Interfaces and data types are described using familiar syntax that won't slow
-  you down.
-- <ins>P</ins>rotocol agnostic - Regardless of the architecture, your data and
-  interfaces are fundamentally the same. Use Apex to generate code for any
-  serialization format or protocol.
-- <ins>Ex</ins>tensible - Generators are written in TypeScript. Easily add
-  custom generators that satisfy your unique needs and publish them for everyone
-  to use.
+- Project templating and scaffolding tool
+- Extensible code generation tool
+- Task runner
 
 For more information, visit [https://apexlang.io](https://apexlang.io).
 
+## Prerequisites
+
+The `apex` CLI depends on Deno.
+
+Install `deno` with instructions
+[here](https://github.com/denoland/deno_install).
+
 ## Installation
 
-First, install [Deno](https://github.com/denoland/deno_install).
-
-Then run the command below from a terminal.
+To install a release version of the `apex` CLI, run the command below:
 
 ```
 deno install -A --unstable -f -n apex https://deno.land/x/apex_cli/apex.ts
 ```
+
+To install from source, clone this repository and run `./apex run install`
+
+```sh
+git clone https://github.com/apexlang/apex.git
+cd apex
+./apex install # or deno install -A --unstable ./apex.ts
+```
+
+## Usage
+
+Visit [https://apexlang.io](https://apexlang.io) for official documentation and
+usage.
 
 ```shell
 apex --help
@@ -39,7 +50,7 @@ Output:
 
   Description:
 
-    A code generation tool using Apex, an interface definition language (IDL) for modeling software.
+    A code generation tool using Apexlang, an interface definition language (IDL) for modeling software.
 
   Options:
 
@@ -51,14 +62,31 @@ Output:
     install      <location>          - Install templates locally.
     new          <template> <dir>    - Create a new project directory using a template.
     init         <template>          - Initialize a project using a template.
-    generate     [configuration...]  - Run apex generators from a given configuration.
+    generate     [configuration...]  - Run Apexlang generators from a given configuration.
     list                             - List available resources.
     describe                         - Describe available resources.
-    watch        [configuration...]  - Watch apex configuration for changes and trigger code generation.
+    watch        [configuration...]  - Watch configuration for changes and trigger code generation.
     run          [tasks...]          - Run tasks.
     upgrade                          - Upgrade apex executable to latest or given version.
     help         [command]           - Show this help or the help of a sub-command.
     completions                      - Generate shell completions.
+```
+
+## Running tests
+
+To run tests, run the command below:
+
+```sh
+apex test
+```
+
+## Development
+
+To run the development version of the `apex` CLI, use the `apex` script in the
+root of this repository, e.g.
+
+```sh
+./apex help
 ```
 
 ## Contributing
