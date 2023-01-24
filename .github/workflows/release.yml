@@ -1,0 +1,32 @@
+name: Release apex version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+    update_files:
+      version:
+        description: 'Files to update with version number'
+        required: true
+        default: 'apex.ts, README.md'
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: denolib/setup-deno@v2
+      - name: Update version and readme
+        env:
+          VERSION: ${{ inputs.version }}
+          FILES: ${{ inputs.files }}
+        run: |
+          deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/release.ts
+          deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/update-readme.ts
+      - name: Commit and tag
+        env:
+          VERSION: ${{ inputs.version }}
+        run: git add apex.ts README.md
+          echo git commit -am "$VERSION release"
+          git tag $VERSION
