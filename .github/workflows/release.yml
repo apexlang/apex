@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
       - uses: denolib/setup-deno@v2
       - name: Update version and README.md
         env:
