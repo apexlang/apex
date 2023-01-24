@@ -47,7 +47,7 @@ const templateEngines: Record<
   },
 };
 
-export async function initializeProjectFromGithub(
+export async function initializeProjectFromGit(
   dest: string,
   template: string,
   variables: Variables = {},
@@ -90,7 +90,7 @@ export async function getTemplateSources(
 ): Promise<Output[]> {
   const tmpDir = await Deno.makeTempDir();
 
-  log.debug(`Using template path ${template}`);
+  log.debug(`Using template from path '${template}'`);
   const cmd = [
     "git",
     "clone",
@@ -282,13 +282,20 @@ export async function initializeProjectFromTemplate(
   variables: Variables = {},
 ): Promise<void> {
   if (
-    !(template.startsWith(".") || template.startsWith("http://") ||
-      template.startsWith("https://"))
+    !(template.startsWith(".") || template.match("^\w+://") ||
+      template.match("\.git$"))
   ) {
     const dirs = await getInstallDirectories();
     const templateRegistry = path.join(dirs.home, "templates.yaml");
-    const templateListYAML = Deno.readTextFileSync(templateRegistry);
-    const allTemplates = yaml.parse(templateListYAML) as TemplateRegistry;
+    const templateListYAML = await Deno.readTextFile(templateRegistry).catch(
+      (e) => {
+        log.debug(`Could not find template registry at ${templateRegistry}`, e);
+        return "";
+      },
+    );
+    const allTemplates =
+      (yaml.parse(templateListYAML) || {}) as TemplateRegistry;
+    allTemplates.templates ||= {};
     const resolved = allTemplates.templates[template];
     if (!resolved) {
       throw new Error(`template ${template} is not installed`);

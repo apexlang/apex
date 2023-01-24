@@ -2,7 +2,7 @@ import { Command } from "../deps/cliffy.ts";
 
 import { Variables } from "../config.ts";
 import {
-  initializeProjectFromGithub,
+  initializeProjectFromGit,
   initializeProjectFromTemplate,
 } from "../init.ts";
 import { templateCompletion, varOptions } from "./utils.ts";
@@ -28,11 +28,16 @@ export const command = new Command()
   .description("Initialize a project using a template.")
   .action(async (options, template: string) => {
     const vars = (options || {}).var || ({} as Variables);
-    if (
-      template.startsWith("https://github.com") &&
-      !template.endsWith(".ts")
-    ) {
-      await initializeProjectFromGithub(
+    try {
+      await initializeProjectFromTemplate(
+        false,
+        ".",
+        template,
+        options.spec,
+        vars || {},
+      );
+    } catch (e) {
+      await initializeProjectFromGit(
         ".",
         template,
         vars || {},
@@ -42,14 +47,6 @@ export const command = new Command()
           branch: options.branch,
           spec: options.spec,
         },
-      );
-    } else {
-      await initializeProjectFromTemplate(
-        false,
-        ".",
-        template,
-        options.spec,
-        vars || {},
       );
     }
   });

@@ -4,6 +4,7 @@ import {
 } from "https://deno.land/std@0.171.0/testing/asserts.ts";
 import { runTasks } from "../src/commands/run.ts";
 import { Task } from "../src/task.ts";
+import { runApex } from "./run-apex.ts";
 const __dirname = new URL(".", import.meta.url).pathname;
 
 async function runFixture(
@@ -11,26 +12,7 @@ async function runFixture(
   task: string,
   env: Record<string, string> = {},
 ): Promise<Uint8Array> {
-  const proc = Deno.run({
-    env,
-    stderr: "inherit",
-    stdout: "piped",
-    cmd: [
-      "deno",
-      "run",
-      "--allow-all",
-      "--unstable",
-      "./apex.ts",
-      "run",
-      "--config",
-      config,
-      "--quiet",
-      task,
-    ],
-  });
-  const out = await proc.output();
-  await proc.close();
-  return out;
+  return runApex(["run", "--config", config, "--quiet", task], env);
 }
 
 function doTest(def: TestDef) {
