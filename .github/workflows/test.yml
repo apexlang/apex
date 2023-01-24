@@ -13,5 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: denolib/setup-deno@v2
+      - name: Add SSH key
+        env:
+          TEST_SSH_KEY: ${{ secrets.TEST_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          echo "$TEST_SSH_KEY" > ~/.ssh/github_actions.key
+          chmod 600 ~/.ssh/github_actions.key
+          ls -alF ~/.ssh
       - name: Run tests
+        env:
+          GIT_SSH_COMMAND: ssh -i ~/.ssh/github_actions.key
         run: ./apex test

@@ -2,10 +2,11 @@ import { Command } from "../deps/cliffy.ts";
 
 import { Variables } from "../config.ts";
 import {
-  initializeProjectFromGithub,
+  initializeProjectFromGit,
   initializeProjectFromTemplate,
 } from "../init.ts";
 import { templateCompletion, varOptions } from "./utils.ts";
+import { log } from "../deps/log.ts";
 
 export const command = new Command()
   .complete("template", async () => await templateCompletion())
@@ -19,7 +20,6 @@ export const command = new Command()
   .option(
     "-b, --branch <string>",
     "checkout branch before processing template",
-    { default: "main" },
   )
   .option(
     "-s, --spec <string>",
@@ -28,11 +28,20 @@ export const command = new Command()
   .description("Create a new project directory using a template.")
   .action(async (options, template: string, dir: string) => {
     const vars = (options || {}).var || ({} as Variables);
-    if (
-      template.startsWith("https://github.com") &&
-      !template.endsWith(".ts")
-    ) {
-      await initializeProjectFromGithub(
+    try {
+      await initializeProjectFromTemplate(
+        true,
+        dir,
+        template,
+        options.spec,
+        vars || {},
+      );
+    } catch (e) {
+      log.debug(
+        `Could not initialize project from programmatic template: ${e}`,
+      );
+      log.debug(`Falling back to git`);
+      await initializeProjectFromGit(
         dir,
         template,
         vars || {},
@@ -42,14 +51,6 @@ export const command = new Command()
           branch: options.branch,
           spec: options.spec,
         },
-      );
-    } else {
-      await initializeProjectFromTemplate(
-        true,
-        dir,
-        template,
-        options.spec,
-        vars || {},
       );
     }
   });
