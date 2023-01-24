@@ -282,8 +282,8 @@ export async function initializeProjectFromTemplate(
   variables: Variables = {},
 ): Promise<void> {
   if (
-    !(template.startsWith(".") || template.match("^\w+://") ||
-      template.match("\.git$"))
+    !(template.startsWith(".") || template.match(/^\w+:\/\//) ||
+      template.match(/\.git$/))
   ) {
     const dirs = await getInstallDirectories();
     const templateRegistry = path.join(dirs.home, "templates.yaml");
@@ -304,6 +304,8 @@ export async function initializeProjectFromTemplate(
   }
 
   const url = makeRelativeUrl(template);
+
+  log.debug(`Initializing project from template ${url}`);
 
   const templateModule = await getTemplateInfo(url.toString());
   if (!templateModule.info) {

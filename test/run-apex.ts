@@ -10,6 +10,11 @@ export async function runApex(
     "./apex.ts",
   ];
   cmd.push(...args);
+  console.log(`Running: ${cmd.join(" ")}`);
+  env ||= {};
+  // Leave in for quick debugging. Enabling debug logging for every test
+  // causes problems for tests that assert on apex output.
+  // env.APEX_LOG = "debug";
   const proc = Deno.run({
     env,
     stderr: "inherit",

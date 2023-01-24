@@ -6,6 +6,7 @@ import {
   initializeProjectFromTemplate,
 } from "../init.ts";
 import { templateCompletion, varOptions } from "./utils.ts";
+import { log } from "../deps/log.ts";
 
 export const command = new Command()
   .complete("template", async () => await templateCompletion())
@@ -19,7 +20,6 @@ export const command = new Command()
   .option(
     "-b, --branch <string>",
     "checkout branch before processing template",
-    { default: "main" },
   )
   .option(
     "-s, --spec <string>",
@@ -37,6 +37,10 @@ export const command = new Command()
         vars || {},
       );
     } catch (e) {
+      log.debug(
+        `Could not initialize project from programmatic template: ${e}`,
+      );
+      log.debug(`Falling back to git`);
       await initializeProjectFromGit(
         dir,
         template,
