@@ -11,13 +11,13 @@ Deno.test(
     const tmpDir = await Deno.makeTempDir();
     const _output = await runApex([
       "new",
-      "https://github.com/apexlang/codegen.git",
+      "https://github.com/apexlang/apex.git",
       "-p",
-      "templates/generator",
+      "test/template",
       tmpDir,
     ]);
     const files = Array.from(Deno.readDirSync(tmpDir));
-    assert(files.length > 1);
+    assertEquals(files.length, 2);
   },
 );
 
@@ -28,13 +28,13 @@ Deno.test(
     const tmpDir = await Deno.makeTempDir();
     const _output = await runApex([
       "new",
-      "git@github.com:apexlang/codegen.git",
+      "git@github.com:apexlang/apex.git",
       "-p",
-      "templates/generator",
+      "test/template",
       tmpDir,
     ]);
     const files = Array.from(Deno.readDirSync(tmpDir));
-    assert(files.length > 1);
+    assertEquals(files.length, 2);
   },
 );
 
