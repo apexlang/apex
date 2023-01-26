@@ -4,7 +4,7 @@ import {
 } from "https://deno.land/x/cache@0.2.13/mod.ts";
 
 export async function load(location: string): Promise<Uint8Array> {
-  if (location.startsWith("file:///")) {
+  if (location.startsWith("file:///") || location.startsWith(".")) {
     return Deno.readFileSync(new URL(location));
   }
 

@@ -13,7 +13,7 @@ export async function installTemplate(
 
   // Determine if URL redirects and possible use the
   // location with the version included (e.g. deno.land/x).
-  if (["http", "https"].indexOf(url.protocol) != -1) {
+  if (["http:", "https:"].indexOf(url.protocol) != -1) {
     const resp = await fetch(url);
     if (resp.redirected) {
       url = new URL(resp.url);
