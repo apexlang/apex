@@ -183,6 +183,7 @@ async function processGeneric<I, O>(
   config: I,
   options: ProcessOptions,
 ): Promise<O> {
+  options ||= {};
   log.debug(`Input is: ${JSON.stringify(config, null, 2)}`);
 
   // Run the generation process with restricted permissions.

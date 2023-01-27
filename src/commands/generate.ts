@@ -21,7 +21,7 @@ export const command = new Command()
     if (!configFiles.length) {
       configFiles = ["apex.yaml"];
     }
-    await fromFiles(configFiles, options);
+    await fromFiles(configFiles, options || {});
   });
 
 export async function fromFiles(

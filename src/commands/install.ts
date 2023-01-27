@@ -9,9 +9,13 @@ import { TemplateMap, TemplateRegistry } from "../config.ts";
 export const command = new Command()
   .arguments("<location:string>")
   .description("Install templates locally.")
-  .action(async (_options, location: string) => {
+  .option(
+    "-r, --reload",
+    "ignore cache and reload sources",
+  )
+  .action(async (options, location: string) => {
     const updates: TemplateMap = {};
-    await installTemplate(updates, location);
+    await installTemplate(updates, location, options || {});
 
     if (Object.keys(updates).length == 0) {
       return;

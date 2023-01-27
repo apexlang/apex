@@ -43,7 +43,7 @@ function calulateVersions(registry: TemplateRegistry) {
       continue;
     }
 
-    const versionRegex = /@(v[0-9][.0-9a-zA-Z\-_^\/]*)\//g;
+    const versionRegex = /@(v[0-9][.0-9a-zA-Z\-_^\/]*?)\//s;
 
     // Get version
     let m;
