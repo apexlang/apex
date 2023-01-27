@@ -37,13 +37,13 @@ export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   }
 }
 
-const versionRegex = /@(v[0-9][^\/]*)\//gm;
-
 function calulateVersions(registry: TemplateRegistry) {
   for (const tmpl of Object.values(registry.templates)) {
     if (tmpl.version) {
       continue;
     }
+
+    const versionRegex = /@(v[0-9][.0-9a-zA-Z\-_^\/]*)\//g;
 
     // Get version
     let m;
