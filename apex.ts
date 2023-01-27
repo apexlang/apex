@@ -18,13 +18,13 @@ import * as list from "./src/commands/list.ts";
 import * as describe from "./src/commands/describe.ts";
 import * as watch from "./src/commands/watch.ts";
 import * as run from "./src/commands/run.ts";
-import { findApexConfig, setupLogger } from "./src/utils.ts";
-import { parseConfigYaml } from "./src/config.ts";
+import { setupLogger } from "./src/utils.ts";
 
 // Version bump this on release.
 const version = "v0.0.16";
 
-const args = Deno.args;
+// This is necessary so we can modify the argument list.
+const args = Array.from(Deno.args);
 
 if (
   args.length == 1 &&
@@ -66,32 +66,13 @@ if (
     .command("help", new HelpCommand().global())
     .command("completions", new CompletionsCommand());
 
-  // Run target if defined in the config.
   const nonFlagArgs = args.filter((v) => !v.startsWith("-"));
-  if (nonFlagArgs.length > 0 && !cli.getBaseCommand(args[0], true)) {
-    const configPath = findApexConfig();
-    if (!configPath) {
-      log.error("could not find configuration");
-      Deno.exit(1);
-    }
-    let config;
-    try {
-      config = await Deno.readTextFile(configPath);
-    } catch (_e) {
-      log.error(`Could not read config ${configPath}`);
-      Deno.exit(1);
-    }
-    try {
-      const configs = parseConfigYaml(config);
-      for (const cfg of configs) {
-        const taskMap = await run.loadTasks(cfg);
-        await run.runTasks(cfg, taskMap, nonFlagArgs, configs.length == 1);
-      }
-    } catch (e) {
-      log.error(e);
-      Deno.exit(1);
-    }
-    Deno.exit(0);
+  const nonApexCommand =
+    (nonFlagArgs.length > 0 && !cli.getBaseCommand(args[0], true));
+  // If we have a subcommand that isn't a built-in, treat
+  // the command as if it were triggered with `apex run`
+  if (nonApexCommand) {
+    args.unshift("run");
   }
 
   try {
