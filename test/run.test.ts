@@ -12,7 +12,9 @@ async function runFixture(
   task: string,
   env: Record<string, string> = {},
 ): Promise<Uint8Array> {
-  return runApex(["run", "--config", config, "--quiet", task], env);
+  const cmd = ["run", "--config", config, "--quiet"];
+  if (task) cmd.push(task);
+  return runApex(cmd, env);
 }
 
 function doTest(def: TestDef) {
@@ -92,6 +94,11 @@ const tests: TestDef[] = [
   {
     fixture: "test/fixtures/task-hello-world.yaml",
     task: "test",
+    expected: "Hello World\n",
+  },
+  {
+    fixture: "test/fixtures/task-hello-world.yaml",
+    task: "",
     expected: "Hello World\n",
   },
   {

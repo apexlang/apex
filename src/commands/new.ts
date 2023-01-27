@@ -13,6 +13,10 @@ export const command = new Command()
   .arguments("<template:string> <dir:string>")
   .option("-v, --var <item:string>", "define a template variable", varOptions)
   .option(
+    "-r, --reload",
+    "ignore cache and reload sources",
+  )
+  .option(
     "-p, --path <string>",
     "specify a relative path to the template root",
     { default: "" },
@@ -33,6 +37,7 @@ export const command = new Command()
         true,
         dir,
         template,
+        options,
         options.spec,
         vars || {},
       );

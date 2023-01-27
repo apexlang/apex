@@ -18,7 +18,7 @@ Deno.test(
           visitorClass: "RustBasic",
         },
       },
-    });
+    }, { reload: true });
 
     const fixture = await Deno.readTextFile(path.join(__dirname, "fixture.rs"));
     assertEquals(generated, [

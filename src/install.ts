@@ -1,6 +1,6 @@
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 
-import { getTemplateInfo, processTemplate } from "./process.ts";
+import { getTemplateInfo, ProcessOptions, processTemplate } from "./process.ts";
 import { makeRelativeUrl } from "./utils.ts";
 import * as cache from "./cache.ts";
 import { FSStructure, TemplateMap } from "./config.ts";
@@ -8,6 +8,7 @@ import { FSStructure, TemplateMap } from "./config.ts";
 export async function installTemplate(
   registry: TemplateMap,
   location: string,
+  options: ProcessOptions,
 ) {
   let url = makeRelativeUrl(location);
 
@@ -20,14 +21,14 @@ export async function installTemplate(
     }
   }
 
-  const module = await getTemplateInfo(url.toString());
+  const module = await getTemplateInfo(url.toString(), options);
   if (module.info) {
     // Cache possible files
     let structure: FSStructure | undefined;
     try {
       structure = await processTemplate(url.toString(), {
         "cache": true,
-      });
+      }, options);
     } catch (_err) {
       // Ignore
     }
@@ -75,6 +76,6 @@ export async function installTemplate(
       template = "./" + template;
     }
     const nestedURL = new URL(template, url);
-    await installTemplate(registry, nestedURL.toString());
+    await installTemplate(registry, nestedURL.toString(), options);
   }
 }

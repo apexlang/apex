@@ -11,6 +11,7 @@ Deno.test(
     const generated = await processTemplate(
       path.join(__dirname, "template", "template.ts"),
       {},
+      {},
     );
 
     assertEquals(generated, {

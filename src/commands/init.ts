@@ -11,6 +11,10 @@ import { log } from "../deps/log.ts";
 export const command = new Command()
   .complete("template", async () => await templateCompletion())
   .arguments("<template:string>")
+  .option(
+    "-r, --reload",
+    "ignore cache and reload sources",
+  )
   .option("-v, --var <item:string>", "define a template variable", varOptions)
   .option(
     "-p, --path <string>",
@@ -33,6 +37,7 @@ export const command = new Command()
         false,
         ".",
         template,
+        options,
         options.spec,
         vars || {},
       );

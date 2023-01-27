@@ -4,7 +4,7 @@ import { fromConfigs } from "./generate.ts";
 import * as ui from "../ui.ts";
 
 import { Configuration, findConfigFile, parseConfigYaml } from "../config.ts";
-import { processPlugins } from "../process.ts";
+import { ProcessOptions, processPlugins } from "../process.ts";
 import { flatten } from "../utils.ts";
 import { CmdOutput, Task } from "../task.ts";
 
@@ -13,6 +13,7 @@ export interface RunOptions {
   quiet?: boolean;
   failUndefined?: boolean;
   list?: boolean;
+  reload?: boolean;
 }
 
 export const command = new Command()
@@ -44,7 +45,7 @@ export async function action(
   const config = await findConfigFile(options.config);
   const configs = parseConfigYaml(config);
   for (const cfg of configs) {
-    const taskMap = await loadTasks(cfg);
+    const taskMap = await loadTasks(cfg, options);
     if (options.list) {
       ui.objToTable(taskMap, ["description"]);
       continue;
@@ -98,8 +99,9 @@ export function parseTasks(
 
 export async function loadTasks(
   config: Configuration,
+  options: ProcessOptions,
 ): Promise<Record<string, Task>> {
-  config = await processPlugins(config);
+  config = await processPlugins(config, options);
   return parseTasks(config);
 }
 
@@ -145,7 +147,7 @@ async function run(
   if (!t) {
     if (task == "generate") {
       console.log("%capex generate", "font-weight: bold");
-      await fromConfigs([config]);
+      await fromConfigs([config], opts);
       return;
     }
 

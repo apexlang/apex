@@ -4,6 +4,8 @@ import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
 import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
 import * as base64 from "https://deno.land/std@0.171.0/encoding/base64.ts";
 
+const __dirname = new URL(".", import.meta.url).pathname;
+
 import {
   Configuration,
   FSStructure,
@@ -17,19 +19,30 @@ import {
 import { cliFormatters, sourceFormatters } from "./formatters.ts";
 import { asBytes, asString } from "./utils.ts";
 
-export async function process(config: Configuration): Promise<Output[]> {
+export interface ProcessOptions {
+  reload?: boolean;
+}
+
+export async function process(
+  config: Configuration,
+  options: ProcessOptions,
+): Promise<Output[]> {
   log.debug(`Configuration is: ${JSON.stringify(config, null, 2)}`);
 
   // Run the generation process with restricted permissions.
   const href = new URL("./generate.ts", import.meta.url).href;
+  const cmd = [
+    "deno",
+    "run",
+    "--allow-read",
+    "--allow-net=deno.land,raw.githubusercontent.com",
+  ];
+  if (options.reload) {
+    cmd.push("--reload");
+  }
+  cmd.push(href);
   const p = await Deno.run({
-    cmd: [
-      Deno.execPath(),
-      "run",
-      "--allow-read",
-      "--allow-net=deno.land,raw.githubusercontent.com",
-      href,
-    ],
+    cmd,
     stdout: "piped",
     stderr: "piped",
     stdin: "piped",
@@ -67,19 +80,23 @@ export async function process(config: Configuration): Promise<Output[]> {
 
 export async function processPlugins(
   config: Configuration,
+  options: ProcessOptions,
 ): Promise<Configuration> {
   return await processGeneric<Configuration, Configuration>(
-    "./run_plugins.ts",
+    path.join(__dirname, "run_plugins.ts"),
     config,
+    options,
   );
 }
 
 export async function processConfiguration(
   config: Configuration,
+  options: ProcessOptions,
 ): Promise<Output[]> {
   const fromJson = await processGeneric<Configuration, JsonOutput[]>(
-    "./run_config.ts",
+    path.join(__dirname, "run_config.ts"),
     config,
+    options,
   );
   return fromJson.map((o: any) => {
     o.contents = base64.decode(o.contents);
@@ -137,42 +154,54 @@ export async function writeOutput(generated: Output): Promise<void> {
 
 export async function getTemplateInfo(
   module: string,
+  options: ProcessOptions,
 ): Promise<Template> {
   return await processGeneric<string, TemplateConfig>(
-    "./run_template_info.ts",
+    path.join(__dirname, "run_template_info.ts"),
     module,
+    options,
   );
 }
 
 export async function processTemplate(
   module: string,
   variables: Variables,
+  options: ProcessOptions,
 ): Promise<FSStructure> {
   return await processGeneric<ProcessTemplateArgs, FSStructure>(
-    "./run_process_template.ts",
+    path.join(__dirname, "run_process_template.ts"),
     {
       module,
       variables,
     },
+    options,
   );
 }
 
 async function processGeneric<I, O>(
   url: string,
   config: I,
+  options: ProcessOptions,
 ): Promise<O> {
   log.debug(`Input is: ${JSON.stringify(config, null, 2)}`);
 
   // Run the generation process with restricted permissions.
   const href = new URL(url, import.meta.url).href;
+
+  const cmd = [
+    "deno",
+    "run",
+    "--allow-read",
+    "--allow-net=deno.land,raw.githubusercontent.com",
+  ];
+  if (options.reload) {
+    cmd.push("--reload");
+  }
+  cmd.push(href);
+
   const p = await Deno.run({
-    cmd: [
-      Deno.execPath(),
-      "run",
-      "--allow-read",
-      "--allow-net=deno.land,raw.githubusercontent.com",
-      href,
-    ],
+    cwd: Deno.cwd(),
+    cmd,
     stdout: "piped",
     stderr: "piped",
     stdin: "piped",

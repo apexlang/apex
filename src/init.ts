@@ -20,7 +20,7 @@ import {
   Variables,
 } from "./config.ts";
 import { asBytes } from "./utils.ts";
-import { writeOutput } from "./process.ts";
+import { ProcessOptions, writeOutput } from "./process.ts";
 import {
   existsSync,
   getInstallDirectories,
@@ -278,6 +278,7 @@ export async function initializeProjectFromTemplate(
   isNew: boolean,
   dir: string,
   template: string,
+  options: ProcessOptions,
   spec?: string,
   variables: Variables = {},
 ): Promise<void> {
@@ -307,7 +308,7 @@ export async function initializeProjectFromTemplate(
 
   log.debug(`Initializing project from template ${url}`);
 
-  const templateModule = await getTemplateInfo(url.toString());
+  const templateModule = await getTemplateInfo(url.toString(), options);
   if (!templateModule.info) {
     throw new Error("template module does not contain info");
   }
@@ -370,7 +371,7 @@ export async function initializeProjectFromTemplate(
   // Default to name variable to directory name.
   variables.name = variables.name || path.basename(path.resolve(dir));
 
-  const fsstructure = await processTemplate(template, variables);
+  const fsstructure = await processTemplate(template, variables, options);
 
   // Add dynamic variables
   if (fsstructure.variables) {
