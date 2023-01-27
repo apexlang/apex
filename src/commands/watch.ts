@@ -4,19 +4,27 @@ import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
 
 import { Configuration } from "../config.ts";
-import { processConfiguration, writeOutput } from "../process.ts";
+import {
+  processConfiguration,
+  ProcessOptions,
+  writeOutput,
+} from "../process.ts";
 
 export const command = new Command()
   .arguments("[...configuration:string[]]")
   .description(
     "Watch configuration for changes and trigger code generation.",
   )
-  .action(async (_options: unknown, configFiles: string[]) => {
+  .option(
+    "-r, --reload",
+    "ignore cache and reload sources",
+  )
+  .action(async (options, configFiles) => {
     configFiles = configFiles || [];
     if (!configFiles.length) {
       configFiles = ["apex.yaml"];
     }
-    await watch(configFiles);
+    await watch(configFiles, options || {});
   });
 
 interface ConfigLocation {
@@ -25,7 +33,7 @@ interface ConfigLocation {
   path: string;
 }
 
-async function watch(configurations: string[]) {
+async function watch(configurations: string[], options: ProcessOptions) {
   let configMap: { [file: string]: Configuration[] } = {};
   let specMap: { [file: string]: Configuration[] } = {};
 
@@ -50,14 +58,14 @@ async function watch(configurations: string[]) {
 
           let confs = specMap[p];
           if (confs) {
-            await processAndWrite(confs);
+            await processAndWrite(confs, options);
           }
 
           confs = configMap[p];
           if (confs) {
             watcher.close();
             await reloadConfigurations();
-            await processAndWrite(confs);
+            await processAndWrite(confs, options);
             return;
           }
         }
@@ -125,10 +133,13 @@ async function watch(configurations: string[]) {
   });
 }
 
-async function processAndWrite(confs: Configuration[]) {
+async function processAndWrite(
+  confs: Configuration[],
+  options: ProcessOptions,
+) {
   for (const conf of confs) {
     try {
-      const outputs = await processConfiguration(conf);
+      const outputs = await processConfiguration(conf, options);
       for (const output of outputs) {
         await writeOutput(output);
       }

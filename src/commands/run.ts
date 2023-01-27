@@ -42,6 +42,7 @@ export async function action(
   options: RunOptions,
   ...tasks: string[]
 ) {
+  options ||= {};
   const config = await findConfigFile(options.config);
   const configs = parseConfigYaml(config);
   for (const cfg of configs) {

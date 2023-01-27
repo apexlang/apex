@@ -30,8 +30,11 @@ export const command = new Command()
     "apex specification to use for the project",
   )
   .description("Initialize a project using a template.")
-  .action(async (options, template: string) => {
-    const vars = (options || {}).var || ({} as Variables);
+  .action(async (options, template) => {
+    options ||= {
+      path: "",
+    };
+    const vars = options.var || ({} as Variables);
     try {
       await initializeProjectFromTemplate(
         false,
