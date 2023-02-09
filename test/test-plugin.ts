@@ -19,9 +19,12 @@ export default function (
       module: generator,
     };
   }
+  config.config ||= {};
+  config.config.value = "from-plugin";
+  config.config.name = "from-plugin";
 
   config.tasks ||= {};
-  config.tasks["start"] = [`echo "test"`];
+  config.tasks["build"] = [`echo "from-plugin"`];
 
   return config;
 }

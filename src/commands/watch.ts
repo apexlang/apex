@@ -105,12 +105,13 @@ async function watch(configurations: string[], options: ProcessOptions) {
         confs1.push(c.config);
         configMapNew[c.path] = confs1;
 
-        // const specPath = path.resolve(path.join(c.dir, c.config.spec));
-        const specPath = path.resolve(c.config.spec);
-        watchPaths.add(specPath);
-        const confs = specMapNew[specPath] || [];
-        confs.push(c.config);
-        specMapNew[specPath] = confs;
+        if (c.config.spec) {
+          const specPath = path.resolve(c.config.spec);
+          watchPaths.add(specPath);
+          const confs = specMapNew[specPath] || [];
+          confs.push(c.config);
+          specMapNew[specPath] = confs;
+        }
       });
 
       configMap = configMapNew;

@@ -1,5 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.171.0/testing/asserts.ts";
-import { flatten } from "../src/utils.ts";
+import { Configuration } from "../src/config.ts";
+import { flatten, merge, mergeConfigurations } from "../src/utils.ts";
 
 Deno.test(
   "flatten",
@@ -18,6 +19,62 @@ Deno.test(
       "APEX_arr_0": "first",
       "APEX_arr_1_inner_obj": "inner_val",
       "APEX_arr_2": "last",
+    });
+  },
+);
+
+Deno.test(
+  "mergeConfiguration",
+  () => {
+    const orig: Configuration = {
+      config: { value: "original" },
+      generates: {
+        "original.txt": { module: "original.ts" },
+      },
+      tasks: {
+        original: ["echo 'original'"],
+      },
+    };
+    const plugin: Configuration = {
+      config: { name: "from-plugin", value: "plugin", other: "plugin" },
+      generates: {
+        "original.txt": { module: "plugin.ts" },
+        "plugin.txt": { module: "plugin.ts" },
+      },
+      tasks: {
+        original: ["echo 'plugin'"],
+      },
+    };
+
+    const finalConfig = mergeConfigurations(orig, plugin);
+
+    assertEquals(finalConfig, {
+      config: { name: "from-plugin", value: "original", other: "plugin" },
+      generates: {
+        "original.txt": { module: "original.ts" },
+        "plugin.txt": { module: "plugin.ts" },
+      },
+      tasks: {
+        original: ["echo 'original'"],
+      },
+    });
+  },
+);
+
+Deno.test(
+  "merge",
+  () => {
+    const orig = {
+      name: undefined,
+    };
+    const plugin = {
+      name: "from-plugin",
+    };
+
+    const finalConfig = merge(orig, plugin);
+
+    assertEquals(finalConfig, {
+      name: "from-plugin",
     });
   },
 );

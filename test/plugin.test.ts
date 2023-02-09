@@ -3,6 +3,7 @@ import { assertEquals } from "https://deno.land/std@0.171.0/testing/asserts.ts";
 import { processConfig, processPlugin } from "../src/generate.ts";
 import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
 import { asBytes, setupLogger } from "../src/utils.ts";
+import { Configuration } from "../src/config.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 const spec = path.join(__dirname, "test.axdl");
@@ -26,6 +27,30 @@ Deno.test(
 );
 
 Deno.test(
+  "plugins don't override original tasks, generate commands, or config properties",
+  { permissions: { read: true, net: true, run: true } },
+  async () => {
+    const apexSource = await Deno.readTextFile(spec);
+    const doc = apex.parse(apexSource);
+    const config = await processPlugin(doc, {
+      spec,
+      config: { name: "", value: "original" },
+      plugins: [plugin],
+      tasks: { "build": [`echo "overridden"`], dependency: [""] },
+      generates: { "Test.1.file": { module: "overridden.ts" } },
+    } as Configuration);
+
+    assertEquals(config, {
+      spec,
+      config: { value: "original", name: "from-plugin" },
+      plugins: [plugin],
+      tasks: { "build": [`echo "overridden"`], dependency: [""] },
+      generates: { "Test.1.file": { module: "overridden.ts" } },
+    });
+  },
+);
+
+Deno.test(
   "plugin",
   { permissions: { read: true, net: true, run: true } },
   async () => {
@@ -42,7 +67,7 @@ Deno.test(
     });
 
     assertEquals(config.tasks, {
-      "start": [`echo "test"`],
+      "build": [`echo "from-plugin"`],
     });
   },
 );

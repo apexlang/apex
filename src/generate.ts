@@ -11,27 +11,23 @@ import {
   Template,
   TemplateConfig,
 } from "./config.ts";
-import { existsSync, makeRelativeUrl } from "./utils.ts";
+import {
+  existsSync,
+  makeRelativeUrl,
+  mergeConfigurations,
+  readSpec,
+} from "./utils.ts";
 
 export async function processPlugins(
   config: Configuration,
 ): Promise<Configuration> {
-  let doc;
-  try {
-    const apexSource = await Deno.readTextFile(config.spec);
-    // TODO: implement resolver callback
-    doc = apex.parse(apexSource);
-  } catch {
-    doc = new apex.ast.Document(undefined, []);
-  }
+  const doc = await readSpec(config.spec);
 
   return await processPlugin(doc, config);
 }
 
 export async function processConfig(config: Configuration): Promise<Output[]> {
-  const apexSource = await Deno.readTextFile(config.spec);
-  // TODO: implement resolver callback
-  const doc = apex.parse(apexSource);
+  const doc = await readSpec(config.spec);
 
   config = await processPlugin(doc, config);
 
@@ -114,13 +110,18 @@ export async function processPlugin(
   doc: apex.ast.Document,
   config: Configuration,
 ): Promise<Configuration> {
+  // make a copy of our original config to protect against mutation
+  const originalConfig = JSON.parse(JSON.stringify(config)) as Configuration;
+
   for (const file of config.plugins || []) {
     const url = makeRelativeUrl(file);
 
     log.debug(`Generating configuration with plugin from ${url}`);
 
     const plugin = await import(url.toString());
-    config = plugin.default(doc, config);
+    const generatedConfig = plugin.default(doc, config);
+    // Update the generated config with values manually entered by the user
+    config = mergeConfigurations(originalConfig, generatedConfig);
   }
 
   return config;

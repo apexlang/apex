@@ -3,6 +3,8 @@ tasks:
     description: Run tests
     cmds:
       - deno fmt --check src/ test/
+      - deno lint src/
+      - deno check --unstable apex.ts
       - deno test --unstable -A
   install:
     description: Install apex

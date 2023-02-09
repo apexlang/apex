@@ -8,7 +8,7 @@ export type Config = { [key: string]: unknown };
 /// MAIN CONFIG
 
 export interface Configuration {
-  spec: string;
+  spec?: string;
   config?: Config;
   plugins?: string[];
   generates?: Record<string, Target>;

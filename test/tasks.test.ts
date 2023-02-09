@@ -1,6 +1,12 @@
 import { assertEquals } from "https://deno.land/std@0.171.0/testing/asserts.ts";
-import { parseTasks } from "../src/commands/run.ts";
+import { loadTasks, parseTasks } from "../src/commands/run.ts";
 import { Task, TaskRunner } from "../src/task.ts";
+import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
+import { setupLogger } from "../src/utils.ts";
+
+const __dirname = new URL(".", import.meta.url).pathname;
+const plugin = path.join(__dirname, "test-plugin.ts");
+await setupLogger("DEBUG");
 
 Deno.test(
   "run task array shorthand",
@@ -13,6 +19,31 @@ Deno.test(
     assertEquals(tasks, {
       "start": new Task({
         cmds: [`echo "test"`],
+        deps: [],
+        runner: TaskRunner.Dax,
+      }),
+    });
+  },
+);
+
+Deno.test(
+  "tasks from plugin don't override original tasks",
+  async () => {
+    const tasks = await loadTasks({
+      plugins: [plugin],
+      tasks: { "build > dep": [`echo "original"`], dep: [] },
+    }, { reload: false });
+
+    assertEquals(tasks, {
+      "build": new Task({
+        cmds: [`echo "original"`],
+        deps: [
+          "dep",
+        ],
+        runner: TaskRunner.Dax,
+      }),
+      "dep": new Task({
+        cmds: [],
         deps: [],
         runner: TaskRunner.Dax,
       }),
