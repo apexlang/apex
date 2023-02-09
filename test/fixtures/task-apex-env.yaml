@@ -1,4 +1,4 @@
-spec: 'my-spec.yaml'
+spec: '../test.axdl'
 config:
   some_val: 12345
 tasks:

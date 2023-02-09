@@ -2,8 +2,13 @@ import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
 import home_dir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";
 import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
+import * as apex from "https://deno.land/x/apex_core@v0.1.2/mod.ts";
 
-import { InstalledTemplate, TemplateRegistry } from "./config.ts";
+import {
+  Configuration,
+  InstalledTemplate,
+  TemplateRegistry,
+} from "./config.ts";
 
 // This function is copied here because it is deprecated for a reason
 // that does not match ou use case.
@@ -155,6 +160,40 @@ export function findApexConfig(config = "apex.yaml"): string | undefined {
   }
 }
 
+export function mergeConfigurations(
+  base: Configuration,
+  addon: Configuration,
+): Configuration {
+  base.config = merge(
+    base.config || {},
+    addon.config || {},
+  );
+  base.generates = merge(
+    base.generates || {},
+    addon.generates || {},
+  );
+  // Don't add task merging here.
+  // The task shorthand (e.g. "task > dep1 dep2") makes it impossible to
+  // merge properly until tasks are parsed. If we merge them in advance here
+  // we lose track of which takes precedence.
+  return base;
+}
+
+export function merge<T>(
+  base: Record<string, T>,
+  addon: Record<string, T>,
+): Record<string, T> {
+  for (const key of Object.keys(addon)) {
+    const value = base[key];
+    const isOriginalUnset = value === null || value === undefined ||
+      value === "";
+    if (isOriginalUnset) {
+      base[key] = addon[key];
+    }
+  }
+  return base;
+}
+
 export function flatten(prefix: string, obj: unknown): unknown {
   if (obj === null || obj === undefined) {
     return { [prefix]: "" };
@@ -174,5 +213,21 @@ export function flatten(prefix: string, obj: unknown): unknown {
     return result;
   } else {
     return { [prefix]: obj.toString() };
+  }
+}
+
+export async function readSpec(spec?: string): Promise<apex.ast.Document> {
+  if (!spec) {
+    return new apex.ast.Document(undefined, []);
+  }
+  try {
+    const apexSource = await Deno.readTextFile(
+      spec,
+    );
+    // TODO: implement resolver callback
+    return apex.parse(apexSource);
+  } catch (e) {
+    console.error(`Failed to read spec file '${spec}': ${e}`);
+    throw e;
   }
 }

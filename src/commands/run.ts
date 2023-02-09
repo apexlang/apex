@@ -5,7 +5,7 @@ import * as ui from "../ui.ts";
 
 import { Configuration, findConfigFile, parseConfigYaml } from "../config.ts";
 import { ProcessOptions, processPlugins } from "../process.ts";
-import { flatten } from "../utils.ts";
+import { flatten, mergeConfigurations } from "../utils.ts";
 import { CmdOutput, Task } from "../task.ts";
 
 export interface RunOptions {
@@ -102,8 +102,29 @@ export async function loadTasks(
   config: Configuration,
   options: ProcessOptions,
 ): Promise<Record<string, Task>> {
-  config = await processPlugins(config, options);
-  return parseTasks(config);
+  // The order of operations is important here to maintain the original
+  // user configuration and use it to override any generated configuration
+  // at a time where it's appropriate.
+
+  // 1) Process plugins and get generated configuration.
+  const generatedConfig = await processPlugins(config, options);
+  // 2) The user's configuration takes precedence, so reset
+  // any configuration that got overridden in the generated configuration.
+  const updatedConfig = mergeConfigurations(config, generatedConfig);
+  // 3) parse the tasks from the original configuration.
+  const userTasks = parseTasks(config);
+  // 4) parse the tasks from the generated configuration.
+  const generatedTasks = parseTasks(updatedConfig);
+  // 5) Reset any tasks that were originally defined by the user.
+  for (const key of Object.keys(generatedTasks)) {
+    if (userTasks[key]) {
+      log.debug(
+        `plugin task "${key}" has been overridden by user configuration`,
+      );
+      generatedTasks[key] = userTasks[key];
+    }
+  }
+  return generatedTasks;
 }
 
 export async function runTasks(
@@ -164,7 +185,7 @@ async function run(
   }
 
   const env = {
-    apex_spec: config.spec,
+    apex_spec: config.spec || "",
   };
   Object.assign(env, flatten("apex_config", config.config));
 

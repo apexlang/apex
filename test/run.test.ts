@@ -127,7 +127,7 @@ const tests: TestDef[] = [
   {
     fixture: "test/fixtures/task-apex-env.yaml",
     task: "test",
-    expected: "My spec is my-spec.yaml and some_val is 12345\n",
+    expected: "My spec is ../test.axdl and some_val is 12345\n",
   },
 ];
 
