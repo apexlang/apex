@@ -1,5 +1,5 @@
 import { Configuration } from "../src/config.ts";
-import * as apex from "https://deno.land/x/apex_core@v0.1.2/mod.ts";
+import * as apex from "https://deno.land/x/apex_core@v0.1.3/mod.ts";
 import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
