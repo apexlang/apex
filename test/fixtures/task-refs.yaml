@@ -1,7 +1,9 @@
 spec: ''
 tasks:
-  test > b:
-    - echo Hello World
+  test:
+    deps: ['b']
+    cmds:
+      - echo Hello World
   c: &c
     - 'echo From c'
   b: *c

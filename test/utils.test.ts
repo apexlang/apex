@@ -66,15 +66,18 @@ Deno.test(
   () => {
     const orig = {
       name: undefined,
+      " other ": "original",
     };
     const plugin = {
       name: "from-plugin",
+      other: "from-plugin",
     };
 
     const finalConfig = merge(orig, plugin);
 
     assertEquals(finalConfig, {
       name: "from-plugin",
+      other: "original",
     });
   },
 );
