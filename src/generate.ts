@@ -1,5 +1,5 @@
-import * as apex from "https://deno.land/x/apex_core@v0.1.2/mod.ts";
-import * as model from "https://deno.land/x/apex_core@v0.1.2/model/mod.ts";
+import * as apex from "https://deno.land/x/apex_core@v0.1.3/mod.ts";
+import * as model from "https://deno.land/x/apex_core@v0.1.3/model/mod.ts";
 import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
 import * as streams from "https://deno.land/std@0.171.0/streams/read_all.ts";
 import * as base64 from "https://deno.land/std@0.171.0/encoding/base64.ts";
