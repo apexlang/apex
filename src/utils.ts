@@ -172,10 +172,10 @@ export function mergeConfigurations(
     base.generates || {},
     addon.generates || {},
   );
-  // Don't add task merging here.
-  // The task shorthand (e.g. "task > dep1 dep2") makes it impossible to
-  // merge properly until tasks are parsed. If we merge them in advance here
-  // we lose track of which takes precedence.
+  base.tasks = merge(
+    base.tasks || {},
+    addon.tasks || {},
+  );
   return base;
 }
 
@@ -183,15 +183,22 @@ export function merge<T>(
   base: Record<string, T>,
   addon: Record<string, T>,
 ): Record<string, T> {
-  for (const key of Object.keys(addon)) {
-    const value = base[key];
+  // normalize input keys by trimming whitespace.
+  const trimmedBase: Record<string, T> = Object.fromEntries(
+    Object.entries(base).map(([k, v]) => [k.trim(), v]),
+  );
+  const trimmedAddon: Record<string, T> = Object.fromEntries(
+    Object.entries(addon).map(([k, v]) => [k.trim(), v]),
+  );
+  for (const key of Object.keys(trimmedAddon)) {
+    const value = trimmedBase[key];
     const isOriginalUnset = value === null || value === undefined ||
       value === "";
     if (isOriginalUnset) {
-      base[key] = addon[key];
+      trimmedBase[key] = trimmedAddon[key];
     }
   }
-  return base;
+  return trimmedBase;
 }
 
 export function flatten(prefix: string, obj: unknown): unknown {

@@ -66,7 +66,6 @@ export function parseTasks(
 ): Record<string, Task> {
   config.tasks ||= {};
   const taskMap: Record<string, Task> = {};
-  let firstTask: string | undefined;
 
   for (const key of Object.keys(config.tasks)) {
     let task;
@@ -77,22 +76,7 @@ export function parseTasks(
       task = new Task(def);
     }
 
-    let taskName = key;
-    const idx = taskName.indexOf(">");
-    if (idx != -1) {
-      const d = taskName.substring(idx + 1).trim();
-      taskName = taskName.substring(0, idx).trim();
-      if (d.length > 0) {
-        // prepend dependencies written in shorthand to the explicit deps.
-        task.deps.unshift(...d.split(" ").map((v) => v.trim()));
-      }
-    }
-
-    if (firstTask == undefined) {
-      firstTask = taskName;
-    }
-
-    taskMap[taskName] = task;
+    taskMap[key] = task;
   }
 
   return taskMap;
@@ -102,28 +86,9 @@ export async function loadTasks(
   config: Configuration,
   options: ProcessOptions,
 ): Promise<Record<string, Task>> {
-  // The order of operations is important here to maintain the original
-  // user configuration and use it to override any generated configuration
-  // at a time where it's appropriate.
-
-  // 1) Process plugins and get generated configuration.
   const generatedConfig = await processPlugins(config, options);
-  // 2) The user's configuration takes precedence, so reset
-  // any configuration that got overridden in the generated configuration.
   const updatedConfig = mergeConfigurations(config, generatedConfig);
-  // 3) parse the tasks from the original configuration.
-  const userTasks = parseTasks(config);
-  // 4) parse the tasks from the generated configuration.
   const generatedTasks = parseTasks(updatedConfig);
-  // 5) Reset any tasks that were originally defined by the user.
-  for (const key of Object.keys(generatedTasks)) {
-    if (userTasks[key]) {
-      log.debug(
-        `plugin task "${key}" has been overridden by user configuration`,
-      );
-      generatedTasks[key] = userTasks[key];
-    }
-  }
   return generatedTasks;
 }
 
