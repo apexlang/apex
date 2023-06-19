@@ -1,14 +1,11 @@
 import * as apex from "https://deno.land/x/apex_core@v0.1.3/mod.ts";
-import { assertEquals } from "https://deno.land/std@0.171.0/testing/asserts.ts";
-import { processConfig, processPlugin } from "../src/generate.ts";
-import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
-import { asBytes, setupLogger } from "../src/utils.ts";
-import { Configuration } from "../src/config.ts";
+import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { processPlugin } from "../src/generate.ts";
+import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
+import { setupLogger } from "../src/utils.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 const spec = path.join(__dirname, "test.axdl");
-const plugin = path.join(__dirname, "test-plugin.ts");
-const generator = path.join(__dirname, "test-generator.ts");
 await setupLogger("DEBUG");
 
 Deno.test(

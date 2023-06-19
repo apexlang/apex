@@ -1,7 +1,4 @@
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.171.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
 import { runApex } from "./run-apex.ts";
 
 Deno.test(

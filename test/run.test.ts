@@ -1,13 +1,13 @@
 import {
   assert,
   assertEquals,
-} from "https://deno.land/std@0.171.0/testing/asserts.ts";
+} from "https://deno.land/std@0.192.0/testing/asserts.ts";
 import { runTasks } from "../src/commands/run.ts";
 import { Task } from "../src/task.ts";
 import { runApex } from "./run-apex.ts";
 const __dirname = new URL(".", import.meta.url).pathname;
 
-async function runFixture(
+function runFixture(
   config: string,
   task: string,
   env: Record<string, string> = {},
@@ -35,7 +35,7 @@ function strEnc(str: string): Uint8Array {
 Deno.test(
   "no tasks defined",
   async () => {
-    const output = await runTasks({ spec: "" }, {}, []);
+    const _output = await runTasks({ spec: "" }, {}, []);
     assert(true, "should not throw");
   },
 );

@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.171.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
 import { Configuration } from "../src/config.ts";
 import { flatten, merge, mergeConfigurations } from "../src/utils.ts";
 
@@ -32,7 +32,7 @@ Deno.test(
         "original.txt": { module: "original.ts" },
       },
       tasks: {
-        original: ["echo 'original'"],
+        original: { cmds: ["echo 'original'"] },
       },
     };
     const plugin: Configuration = {
@@ -42,7 +42,7 @@ Deno.test(
         "plugin.txt": { module: "plugin.ts" },
       },
       tasks: {
-        original: ["echo 'plugin'"],
+        original: { cmds: ["echo 'plugin'"] },
       },
     };
 
@@ -55,7 +55,7 @@ Deno.test(
         "plugin.txt": { module: "plugin.ts" },
       },
       tasks: {
-        original: ["echo 'original'"],
+        original: { cmds: ["echo 'original'"] },
       },
     });
   },

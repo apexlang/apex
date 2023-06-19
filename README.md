@@ -44,7 +44,34 @@ apex --help
 
 Output:
 
-```console{title="apex help"}```
+```console{title="apex help"}
+  Usage:   apex  
+  Version: v0.1.0
+
+  Description:
+
+    A complete project tool suite based on Apexlang, an interface definition language (IDL) for modeling software.
+
+  Options:
+
+    -h, --help     - Show this help.                            
+    -V, --version  - Show the version number for this program.  
+
+  Commands:
+
+    install      <location>          - Install templates locally.                                  
+    new          <template> <dir>    - Create a new project directory using a template.            
+    init         <template>          - Initialize a project using a template.                      
+    generate     [configuration...]  - Run Apexlang generators from a given configuration.         
+    list                             - List available resources.                                   
+    describe                         - Describe available resources.                               
+    watch        [configuration...]  - Watch configuration for changes and trigger code generation.
+    run          [tasks...]          - Run tasks.                                                  
+    upgrade                          - Upgrade apex executable to latest or given version.         
+    help         [command]           - Show this help or the help of a sub-command.                
+    completions                      - Generate shell completions.                                 
+
+```
 
 ## Running tests
 

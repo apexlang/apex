@@ -1,7 +1,7 @@
-import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
-import * as fs from "https://deno.land/std@0.171.0/fs/mod.ts";
-import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
-import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
+import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
+import * as fs from "https://deno.land/std@0.192.0/fs/mod.ts";
+import * as yaml from "https://deno.land/std@0.192.0/yaml/mod.ts";
+import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
 import {
   Confirm,
   ConfirmOptions,

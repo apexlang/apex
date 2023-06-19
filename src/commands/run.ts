@@ -1,5 +1,5 @@
 import { Command } from "../deps/cliffy.ts";
-import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
+import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
 import { fromConfigs } from "./generate.ts";
 import * as ui from "../ui.ts";
 
@@ -49,7 +49,7 @@ export async function action(
     const taskMap = await loadTasks(cfg, options);
     if (options.list) {
       ui.objToTable(taskMap, ["description"]);
-      continue;
+      return;
     }
     await runTasks(
       cfg,
@@ -68,15 +68,8 @@ export function parseTasks(
   const taskMap: Record<string, Task> = {};
 
   for (const key of Object.keys(config.tasks)) {
-    let task;
     const def = config.tasks[key];
-    if (Array.isArray(def)) {
-      task = new Task({ cmds: def });
-    } else {
-      task = new Task(def);
-    }
-
-    taskMap[key] = task;
+    taskMap[key] = new Task(def);
   }
 
   return taskMap;

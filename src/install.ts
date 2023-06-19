@@ -1,4 +1,4 @@
-import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
+import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
 
 import { getTemplateInfo, ProcessOptions, processTemplate } from "./process.ts";
 import { makeRelativeUrl } from "./utils.ts";

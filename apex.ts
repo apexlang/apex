@@ -2,7 +2,7 @@
 
 import { Command, CompletionsCommand, HelpCommand } from "./src/deps/cliffy.ts";
 import { GithubProvider, UpgradeCommand } from "./src/deps/cliffy.ts";
-import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
+import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
 
 const LEVEL =
   (Deno.env.get("APEX_LOG")?.toUpperCase() as log.LevelName | undefined) ||
@@ -67,8 +67,8 @@ if (
     .command("completions", new CompletionsCommand());
 
   const nonFlagArgs = args.filter((v) => !v.startsWith("-"));
-  const nonApexCommand =
-    (nonFlagArgs.length > 0 && !cli.getBaseCommand(args[0], true));
+  const nonApexCommand = nonFlagArgs.length > 0 &&
+    !cli.getBaseCommand(args[0], true);
   // If we have a subcommand that isn't a built-in, treat
   // the command as if it were triggered with `apex run`
   if (nonApexCommand) {

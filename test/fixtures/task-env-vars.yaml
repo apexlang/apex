@@ -1,4 +1,5 @@
 spec: ''
 tasks:
   test:
-    - echo Hello $NAME
+    cmds:
+      - echo Hello $NAME

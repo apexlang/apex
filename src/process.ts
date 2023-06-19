@@ -1,8 +1,8 @@
 // deno-lint-ignore-file no-explicit-any
-import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
-import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
+import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
+import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
 import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
-import * as base64 from "https://deno.land/std@0.171.0/encoding/base64.ts";
+import * as base64 from "https://deno.land/std@0.192.0/encoding/base64.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 
@@ -21,6 +21,7 @@ import { asBytes, asString } from "./utils.ts";
 
 export interface ProcessOptions {
   reload?: boolean;
+  scaffold?: boolean;
 }
 
 export async function process(
@@ -41,6 +42,9 @@ export async function process(
     cmd.push("--reload");
   }
   cmd.push(href);
+  if (options.scaffold) {
+    cmd.push("--scaffold");
+  }
   const p = await Deno.run({
     cmd,
     stdout: "piped",
@@ -199,6 +203,9 @@ async function processGeneric<I, O>(
     cmd.push("--reload");
   }
   cmd.push(href);
+  if (options.scaffold) {
+    cmd.push("--scaffold");
+  }
 
   const p = await Deno.run({
     cwd: Deno.cwd(),

@@ -1,8 +1,8 @@
 import * as apex from "https://deno.land/x/apex_core@v0.1.3/mod.ts";
 import * as model from "https://deno.land/x/apex_core@v0.1.3/model/mod.ts";
-import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
-import * as streams from "https://deno.land/std@0.171.0/streams/read_all.ts";
-import * as base64 from "https://deno.land/std@0.171.0/encoding/base64.ts";
+import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
+import * as streams from "https://deno.land/std@0.192.0/streams/read_all.ts";
+import * as base64 from "https://deno.land/std@0.192.0/encoding/base64.ts";
 
 import {
   Config,
@@ -26,7 +26,10 @@ export async function processPlugins(
   return await processPlugin(doc, config);
 }
 
-export async function processConfig(config: Configuration): Promise<Output[]> {
+export async function processConfig(
+  config: Configuration,
+  scaffold = false,
+): Promise<Output[]> {
   const doc = await readSpec(config.spec);
 
   config = await processPlugin(doc, config);
@@ -34,6 +37,12 @@ export async function processConfig(config: Configuration): Promise<Output[]> {
   const output: Output[] = [];
   for (const file in config.generates) {
     const generatorConfig = config.generates[file];
+
+    if (generatorConfig.scaffold == true && !scaffold) {
+      // TODO: denote skipped files.
+      //log.info(`Skipping ${file}`);
+      continue;
+    }
 
     if (generatorConfig.ifNotExists == true && existsSync(file)) {
       // TODO: denote skipped files.
@@ -142,11 +151,12 @@ export async function importTemplate(
 if (!Deno.isatty(Deno.stdin.rid) && import.meta.main) {
   const stdinContent = await streams.readAll(Deno.stdin);
   const content = new TextDecoder().decode(stdinContent);
+  const scaffold = Deno.args.indexOf("--scaffold") != -1;
   try {
     const config = JSON.parse(content) as Configuration;
     console.log(
       JSON.stringify(
-        await processConfig(config),
+        await processConfig(config, scaffold),
         (_, v) => v instanceof Uint8Array ? base64.encode(v) : v,
       ),
     );
