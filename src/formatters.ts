@@ -81,6 +81,5 @@ async function exec(cmd: string, ...args: string[]) {
   const command = new Deno.Command(cmd, {
     args: args,
   });
-  const child = command.spawn();
-  await child.status;
+  await command.output();
 }

@@ -2,26 +2,25 @@ export async function runApex(
   args: string[],
   env: Record<string, string> = {},
 ): Promise<Uint8Array> {
-  const cmd = [
-    "deno",
+  const cmdArgs = [
     "run",
     "--allow-all",
     "--unstable",
     "./apex.ts",
   ];
-  cmd.push(...args);
-  console.log(`Running: ${cmd.join(" ")}`);
+  cmdArgs.push(...args);
+  console.log(`Running: ${cmdArgs.join(" ")}`);
   env ||= {};
   // Leave in for quick debugging. Enabling debug logging for every test
   // causes problems for tests that assert on apex output.
   // env.APEX_LOG = "debug";
-  const proc = Deno.run({
+  const command = new Deno.Command("deno", {
     env,
     stderr: "inherit",
     stdout: "piped",
-    cmd,
+    args: cmdArgs,
   });
-  const out = await proc.output();
-  await proc.close();
-  return out;
+  const out = await command.output();
+
+  return out.stdout;
 }

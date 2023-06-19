@@ -6,10 +6,12 @@ const orig = Deno.readTextFileSync(readme);
 const colorCodes = /\x1b\[\d+;*m/g;
 const upgradeNotification = /\(New version.*$/m;
 
-const apexOutput = await Deno.run({
+const command = new Deno.Command("./apex", {
   stdout: "piped",
-  cmd: ["./apex", "help"],
-}).output();
+  args: ["help"],
+});
+const outout = await command.output();
+const apexOutput = outout.stdout;
 
 const helpText = new TextDecoder()
   .decode(apexOutput)

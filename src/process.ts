@@ -32,36 +32,38 @@ export async function process(
 
   // Run the generation process with restricted permissions.
   const href = new URL("./generate.ts", import.meta.url).href;
-  const cmd = [
-    "deno",
+  const cmdArgs = [
     "run",
     "--allow-read",
     "--allow-net=deno.land,raw.githubusercontent.com",
   ];
   if (options.reload) {
-    cmd.push("--reload");
+    cmdArgs.push("--reload");
   }
-  cmd.push(href);
+  cmdArgs.push(href);
   if (options.scaffold) {
-    cmd.push("--scaffold");
+    cmdArgs.push("--scaffold");
   }
-  const p = await Deno.run({
-    cmd,
+  const command = new Deno.Command("deno", {
+    args: cmdArgs,
     stdout: "piped",
     stderr: "piped",
     stdin: "piped",
   });
+  const p = command.spawn();
 
   const input = JSON.stringify(config);
-  await p.stdin.write(new TextEncoder().encode(input));
-  p.stdin.close();
+  const writer = p.stdin.getWriter();
+  await writer.write(new TextEncoder().encode(input));
+  await writer.close();
 
   // Reading the outputs and closes their pipes
-  const rawOutput = await p.output();
-  const rawError = await p.stderrOutput();
+  const out = await p.output();
+  const rawOutput = out.stdout;
+  const rawError = out.stderr;
 
-  const { code } = await p.status();
-  p.close();
+  const { code } = await p.status;
+  // p.close();
 
   const errorString = new TextDecoder().decode(rawError);
 
@@ -150,8 +152,7 @@ export async function writeOutput(generated: Output): Promise<void> {
         args: args,
         cwd: cmdConfig.dir,
       });
-      const child = command.spawn();
-      await child.status;
+      await command.output();
     });
   }
 }
@@ -193,38 +194,40 @@ async function processGeneric<I, O>(
   // Run the generation process with restricted permissions.
   const href = new URL(url, import.meta.url).href;
 
-  const cmd = [
-    "deno",
+  const cmdArgs = [
     "run",
     "--allow-read",
     "--allow-net=deno.land,raw.githubusercontent.com",
   ];
   if (options.reload) {
-    cmd.push("--reload");
+    cmdArgs.push("--reload");
   }
-  cmd.push(href);
+  cmdArgs.push(href);
   if (options.scaffold) {
-    cmd.push("--scaffold");
+    cmdArgs.push("--scaffold");
   }
 
-  const p = await Deno.run({
+  const command = new Deno.Command("deno", {
     cwd: Deno.cwd(),
-    cmd,
+    args: cmdArgs,
     stdout: "piped",
     stderr: "piped",
     stdin: "piped",
   });
+  const p = command.spawn();
 
   const input = JSON.stringify(config);
-  await p.stdin.write(new TextEncoder().encode(input));
-  p.stdin.close();
+  const writer = p.stdin.getWriter();
+  await writer.write(new TextEncoder().encode(input));
+  await writer.close();
 
   // Reading the outputs and closes their pipes
-  const rawOutput = await p.output();
-  const rawError = await p.stderrOutput();
+  const out = await p.output();
+  const rawOutput = out.stdout;
+  const rawError = out.stderr;
 
-  const { code } = await p.status();
-  p.close();
+  const { code } = await p.status;
+  // p.close();
 
   const errorString = new TextDecoder().decode(rawError);
 
