@@ -44,8 +44,8 @@ apex --help
 
 Output:
 
-```console{title="apex help"}
-  Usage:   apex  
+````console{title="apex help"}
+Usage:   apex  
   Version: v0.1.0
 
   Description:
@@ -69,8 +69,7 @@ Output:
     run          [tasks...]          - Run tasks.                                                  
     upgrade                          - Upgrade apex executable to latest or given version.         
     help         [command]           - Show this help or the help of a sub-command.                
-    completions                      - Generate shell completions.                                 
-
+    completions                      - Generate shell completions.
 ```
 
 ## Running tests
@@ -79,7 +78,7 @@ To run tests, run the command below:
 
 ```sh
 apex test
-```
+````
 
 ## Development
 

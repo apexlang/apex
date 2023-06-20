@@ -16,11 +16,14 @@ const apexOutput = outout.stdout;
 const helpText = new TextDecoder()
   .decode(apexOutput)
   .replace(colorCodes, "")
-  .replace(upgradeNotification, "");
+  .replace(upgradeNotification, "")
+  .trim();
 
 const updated = orig.replace(
   /```(console{title="apex help"}).*?```/s,
-  `\`\`\`$1${helpText}\`\`\``,
+  `\`\`\`\$1
+${helpText}
+\`\`\``,
 );
 
 Deno.writeFileSync(readme, new TextEncoder().encode(updated));

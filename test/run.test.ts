@@ -77,9 +77,11 @@ Deno.test(
   { permissions: { read: true, run: true, env: true } },
   async () => {
     try {
-      const output = await new Task({ cmds: ["DOES_NOT_EXIST"] }).run()!;
+      await new Task({ cmds: ["DOES_NOT_EXIST"] }).run()!;
       assert(false, "should throw");
-    } catch {}
+    } catch {
+      // Ignored
+    }
   },
 );
 
