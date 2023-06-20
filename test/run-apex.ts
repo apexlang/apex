@@ -9,7 +9,7 @@ export async function runApex(
     "./apex.ts",
   ];
   cmdArgs.push(...args);
-  console.log(`Running: ${cmdArgs.join(" ")}`);
+  console.log(`Running: deno ${cmdArgs.join(" ")}`);
   env ||= {};
   // Leave in for quick debugging. Enabling debug logging for every test
   // causes problems for tests that assert on apex output.

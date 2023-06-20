@@ -32,20 +32,20 @@ export async function process(
 
   // Run the generation process with restricted permissions.
   const href = new URL("./generate.ts", import.meta.url).href;
-  const cmdArgs = [
+  const args = [
     "run",
     "--allow-read",
     "--allow-net=deno.land,raw.githubusercontent.com",
   ];
   if (options.reload) {
-    cmdArgs.push("--reload");
+    args.push("--reload");
   }
-  cmdArgs.push(href);
+  args.push(href);
   if (options.scaffold) {
-    cmdArgs.push("--scaffold");
+    args.push("--scaffold");
   }
   const command = new Deno.Command("deno", {
-    args: cmdArgs,
+    args: args,
     stdout: "piped",
     stderr: "piped",
     stdin: "piped",
@@ -194,22 +194,22 @@ async function processGeneric<I, O>(
   // Run the generation process with restricted permissions.
   const href = new URL(url, import.meta.url).href;
 
-  const cmdArgs = [
+  const args = [
     "run",
     "--allow-read",
     "--allow-net=deno.land,raw.githubusercontent.com",
   ];
   if (options.reload) {
-    cmdArgs.push("--reload");
+    args.push("--reload");
   }
-  cmdArgs.push(href);
+  args.push(href);
   if (options.scaffold) {
-    cmdArgs.push("--scaffold");
+    args.push("--scaffold");
   }
 
   const command = new Deno.Command("deno", {
     cwd: Deno.cwd(),
-    args: cmdArgs,
+    args: args,
     stdout: "piped",
     stderr: "piped",
     stdin: "piped",

@@ -91,16 +91,16 @@ export async function getTemplateSources(
   const tmpDir = await Deno.makeTempDir();
 
   log.debug(`Using template from path '${template}'`);
-  const cmdArgs = [
+  const args = [
     "clone",
     `--depth=1`,
   ];
   if (options.branch) {
-    cmdArgs.push(`--branch=${options.branch}`);
+    args.push(`--branch=${options.branch}`);
   }
-  cmdArgs.push(...[template, tmpDir]);
+  args.push(...[template, tmpDir]);
 
-  const command = new Deno.Command("git", { args: cmdArgs });
+  const command = new Deno.Command("git", { args: args });
   const result = await command.output();
   // comprocessmand.close();
   if (!result.success) {
