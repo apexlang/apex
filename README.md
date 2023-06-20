@@ -44,7 +44,7 @@ apex --help
 
 Output:
 
-````console{title="apex help"}
+```console{title="apex help"}
 Usage:   apex  
   Version: v0.1.0
 
@@ -78,7 +78,7 @@ To run tests, run the command below:
 
 ```sh
 apex test
-````
+```
 
 ## Development
 
