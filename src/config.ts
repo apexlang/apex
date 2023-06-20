@@ -12,10 +12,8 @@ export interface Configuration {
   config?: Config;
   plugins?: string[];
   generates?: Record<string, Target>;
-  tasks?: Record<string, TaskDefinition>;
+  tasks?: Record<string, TaskConfig>;
 }
-
-export type TaskDefinition = TaskConfig;
 
 export interface Target {
   module: string;
