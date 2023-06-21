@@ -21,7 +21,7 @@ import * as run from "./src/commands/run.ts";
 import { setupLogger } from "./src/utils.ts";
 
 // Version bump this on release.
-const version = "v0.1.0";
+const version = "v0.1.1";
 
 // This is necessary so we can modify the argument list.
 const args = Array.from(Deno.args);
