@@ -1,7 +1,7 @@
-import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
+import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
 import home_dir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";
-import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
-import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
+import * as yaml from "https://deno.land/std@0.192.0/yaml/mod.ts";
+import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
 import * as apex from "https://deno.land/x/apex_core@v0.1.3/mod.ts";
 
 import {

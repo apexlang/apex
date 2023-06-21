@@ -1,6 +1,6 @@
 import { Command } from "../deps/cliffy.ts";
-import * as streams from "https://deno.land/std@0.171.0/streams/read_all.ts";
-import * as log from "https://deno.land/std@0.171.0/log/mod.ts";
+import * as streams from "https://deno.land/std@0.192.0/streams/read_all.ts";
+import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
 
 import { Configuration, Output, parseConfigYaml } from "../config.ts";
 import {
@@ -12,6 +12,10 @@ import {
 export const command = new Command()
   .arguments("[...configuration:string[]]")
   .description("Run Apexlang generators from a given configuration.")
+  .option(
+    "-s, --scaffold",
+    "generate scaffolded files",
+  )
   .option(
     "-r, --reload",
     "reload files from cache",

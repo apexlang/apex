@@ -1,6 +1,6 @@
-import { assertEquals } from "https://deno.land/std@0.171.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
 import { getTemplateSources, getUnresolved } from "../src/init.ts";
-import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
+import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
 import { asBytes, setupLogger } from "../src/utils.ts";
 import { Variable } from "../src/config.ts";
 

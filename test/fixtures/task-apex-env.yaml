@@ -3,4 +3,5 @@ config:
   some_val: 12345
 tasks:
   test:
-    - echo My spec is $apex_spec and some_val is $apex_config_some_val
+    cmds:
+      - echo My spec is $apex_spec and some_val is $apex_config_some_val

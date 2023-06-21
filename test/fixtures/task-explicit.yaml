@@ -6,4 +6,5 @@ tasks:
     deps:
       - b
   b:
-    - echo "From b"
+    cmds:
+      - echo "From b"

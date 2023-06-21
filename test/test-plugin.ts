@@ -1,6 +1,6 @@
 import { Configuration } from "../src/config.ts";
 import * as apex from "https://deno.land/x/apex_core@v0.1.3/mod.ts";
-import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
+import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 const generator = path.join(__dirname, "test-generator.ts");
@@ -24,7 +24,9 @@ export default function (
   config.config.name = "from-plugin";
 
   config.tasks ||= {};
-  config.tasks["build"] = [`echo "from-plugin"`];
+  config.tasks["build"] = {
+    cmds: [`echo "from-plugin"`],
+  };
 
   return config;
 }

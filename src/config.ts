@@ -1,5 +1,5 @@
 import { TaskConfig } from "./task.ts";
-import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
+import * as yaml from "https://deno.land/std@0.192.0/yaml/mod.ts";
 import { findApexConfig } from "./utils.ts";
 import { log } from "./deps/log.ts";
 
@@ -12,14 +12,13 @@ export interface Configuration {
   config?: Config;
   plugins?: string[];
   generates?: Record<string, Target>;
-  tasks?: Record<string, TaskDefinition>;
+  tasks?: Record<string, TaskConfig>;
 }
-
-export type TaskDefinition = string[] | TaskConfig;
 
 export interface Target {
   module: string;
   visitorClass?: string;
+  scaffold?: boolean;
   ifNotExists?: boolean;
   append?: Visitor[];
   executable?: boolean;

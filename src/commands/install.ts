@@ -1,5 +1,5 @@
-import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
-import * as yaml from "https://deno.land/std@0.171.0/encoding/yaml.ts";
+import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
+import * as yaml from "https://deno.land/std@0.192.0/yaml/mod.ts";
 
 import { Command } from "../deps/cliffy.ts";
 import { getInstallDirectories } from "../utils.ts";

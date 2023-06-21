@@ -1,7 +1,7 @@
 import * as apex from "https://deno.land/x/apex_core@v0.1.3/mod.ts";
-import { assertEquals } from "https://deno.land/std@0.171.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
 import { processConfig, processPlugin } from "../src/generate.ts";
-import * as path from "https://deno.land/std@0.171.0/path/mod.ts";
+import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
 import { asBytes, setupLogger } from "../src/utils.ts";
 import { Configuration } from "../src/config.ts";
 
@@ -36,7 +36,12 @@ Deno.test(
       spec,
       config: { name: "", value: "original" },
       plugins: [plugin],
-      tasks: { "build": [`echo "overridden"`], dependency: [""] },
+      tasks: {
+        "build": {
+          cmds: [`echo "overridden"`],
+          deps: [""],
+        },
+      },
       generates: { "Test.1.file": { module: "overridden.ts" } },
     } as Configuration);
 
@@ -44,7 +49,7 @@ Deno.test(
       spec,
       config: { value: "original", name: "from-plugin" },
       plugins: [plugin],
-      tasks: { "build": [`echo "overridden"`], dependency: [""] },
+      tasks: { "build": { cmds: [`echo "overridden"`], deps: [""] } },
       generates: { "Test.1.file": { module: "overridden.ts" } },
     });
   },
@@ -67,7 +72,7 @@ Deno.test(
     });
 
     assertEquals(config.tasks, {
-      "build": [`echo "from-plugin"`],
+      "build": { cmds: [`echo "from-plugin"`] },
     });
   },
 );

@@ -6,19 +6,24 @@ const orig = Deno.readTextFileSync(readme);
 const colorCodes = /\x1b\[\d+;*m/g;
 const upgradeNotification = /\(New version.*$/m;
 
-const apexOutput = await Deno.run({
+const command = new Deno.Command("./apex", {
   stdout: "piped",
-  cmd: ["./apex", "help"],
-}).output();
+  args: ["help"],
+});
+const outout = await command.output();
+const apexOutput = outout.stdout;
 
 const helpText = new TextDecoder()
   .decode(apexOutput)
   .replace(colorCodes, "")
-  .replace(upgradeNotification, "");
+  .replace(upgradeNotification, "")
+  .trim();
 
 const updated = orig.replace(
   /```(console{title="apex help"}).*?```/s,
-  `\`\`\`$1${helpText}\`\`\``,
+  `\`\`\`\$1
+${helpText}
+\`\`\``,
 );
 
 Deno.writeFileSync(readme, new TextEncoder().encode(updated));

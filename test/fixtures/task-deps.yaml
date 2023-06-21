@@ -5,4 +5,5 @@ tasks:
     cmds:
       - echo Hello World
   b:
-    - echo "From b"
+    cmds:
+      - echo "From b"

@@ -1,4 +1,4 @@
-import { build$, CommandBuilder } from "https://deno.land/x/dax@0.24.1/mod.ts";
+import { build$, CommandBuilder } from "./deps/dax.ts";
 
 export enum TaskRunner {
   Dax = "dax",

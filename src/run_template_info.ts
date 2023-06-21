@@ -1,4 +1,4 @@
-import * as streams from "https://deno.land/std@0.171.0/streams/read_all.ts";
+import * as streams from "https://deno.land/std@0.192.0/streams/read_all.ts";
 
 import { importTemplate } from "./generate.ts";
 
