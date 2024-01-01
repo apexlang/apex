@@ -5,7 +5,6 @@ export async function runApex(
   const cmdArgs = [
     "run",
     "--allow-all",
-    "--unstable",
     "./apex.ts",
   ];
   cmdArgs.push(...args);

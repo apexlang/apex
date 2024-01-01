@@ -1,8 +1,9 @@
-import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
-import home_dir from "https://deno.land/x/dir@1.5.1/home_dir/mod.ts";
-import * as yaml from "https://deno.land/std@0.192.0/yaml/mod.ts";
-import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
-import * as apex from "https://deno.land/x/apex_core@v0.1.3/mod.ts";
+import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
+import home_dir from "https://deno.land/x/dir@1.5.2/home_dir/mod.ts";
+import * as yaml from "https://deno.land/std@0.213.0/yaml/mod.ts";
+import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
+import * as apex from "https://deno.land/x/apex_core@v0.1.5/mod.ts";
+import * as ast from "https://deno.land/x/apex_core@v0.1.5/ast.ts";
 
 import {
   Configuration,
@@ -223,9 +224,9 @@ export function flatten(prefix: string, obj: unknown): unknown {
   }
 }
 
-export async function readSpec(spec?: string): Promise<apex.ast.Document> {
+export async function readSpec(spec?: string): Promise<ast.Document> {
   if (!spec) {
-    return new apex.ast.Document(undefined, []);
+    return new ast.Document(undefined, []);
   }
   try {
     const apexSource = await Deno.readTextFile(

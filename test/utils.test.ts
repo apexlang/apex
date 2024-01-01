@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.213.0/assert/assert_equals.ts";
 import { Configuration } from "../src/config.ts";
 import { flatten, merge, mergeConfigurations } from "../src/utils.ts";
 

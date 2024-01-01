@@ -4,9 +4,9 @@ tasks:
     cmds:
       - deno fmt --check src/ test/
       - deno lint src/
-      - deno check --unstable apex.ts
-      - deno test --unstable -A
+      - deno check apex.ts
+      - deno test -A
   install:
     description: Install apex
     cmds:
-      - deno install -f -A --unstable ./apex.ts
+      - deno install -A -f ./apex.ts

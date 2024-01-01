@@ -1,7 +1,7 @@
 import { Command } from "../deps/cliffy.ts";
-import * as yaml from "https://deno.land/std@0.192.0/yaml/mod.ts";
-import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
-import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
+import * as yaml from "https://deno.land/std@0.213.0/yaml/mod.ts";
+import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
+import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
 
 import { Configuration } from "../config.ts";
 import {

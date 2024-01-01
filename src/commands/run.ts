@@ -1,5 +1,5 @@
 import { Command } from "../deps/cliffy.ts";
-import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
+import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
 import { fromConfigs } from "./generate.ts";
 import * as ui from "../ui.ts";
 

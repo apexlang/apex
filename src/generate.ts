@@ -1,8 +1,8 @@
-import * as apex from "https://deno.land/x/apex_core@v0.1.3/mod.ts";
-import * as model from "https://deno.land/x/apex_core@v0.1.3/model/mod.ts";
-import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
-import * as streams from "https://deno.land/std@0.192.0/streams/read_all.ts";
-import * as base64 from "https://deno.land/std@0.192.0/encoding/base64.ts";
+import * as ast from "https://deno.land/x/apex_core@v0.1.5/ast.ts";
+import * as model from "https://deno.land/x/apex_core@v0.1.5/model.ts";
+import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
+import * as io from "https://deno.land/std@0.213.0/io/read_all.ts";
+import * as base64 from "https://deno.land/std@0.213.0/encoding/base64.ts";
 
 import {
   Config,
@@ -116,7 +116,7 @@ export async function processConfig(
 }
 
 export async function processPlugin(
-  doc: apex.ast.Document,
+  doc: ast.Document,
   config: Configuration,
 ): Promise<Configuration> {
   // make a copy of our original config to protect against mutation
@@ -148,8 +148,8 @@ export async function importTemplate(
 }
 
 // Detect piped input
-if (!Deno.isatty(Deno.stdin.rid) && import.meta.main) {
-  const stdinContent = await streams.readAll(Deno.stdin);
+if (!Deno.stdin.isTerminal() && import.meta.main) {
+  const stdinContent = await io.readAll(Deno.stdin);
   const content = new TextDecoder().decode(stdinContent);
   const scaffold = Deno.args.indexOf("--scaffold") != -1;
   try {
@@ -157,7 +157,7 @@ if (!Deno.isatty(Deno.stdin.rid) && import.meta.main) {
     console.log(
       JSON.stringify(
         await processConfig(config, scaffold),
-        (_, v) => v instanceof Uint8Array ? base64.encode(v) : v,
+        (_, v) => v instanceof Uint8Array ? base64.encodeBase64(v) : v,
       ),
     );
   } catch (e) {

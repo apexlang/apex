@@ -1,8 +1,13 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run --unstable
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run
 
-import { Command, CompletionsCommand, HelpCommand } from "./src/deps/cliffy.ts";
-import { GithubProvider, UpgradeCommand } from "./src/deps/cliffy.ts";
-import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
+import {
+  Command,
+  CompletionsCommand,
+  GithubProvider,
+  HelpCommand,
+  UpgradeCommand,
+} from "./src/deps/cliffy.ts";
+import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
 
 const LEVEL =
   (Deno.env.get("APEX_LOG")?.toUpperCase() as log.LevelName | undefined) ||
@@ -29,7 +34,7 @@ const args = Array.from(Deno.args);
 if (
   args.length == 1 &&
   args[0] == "__generate" &&
-  !Deno.isatty(Deno.stdin.rid)
+  !Deno.stdin.isTerminal()
 ) {
   generate.fromStdin();
 } else {
@@ -58,7 +63,6 @@ if (
           "--allow-env",
           "--allow-net",
           "--allow-run",
-          "--unstable",
         ],
         provider: [new GithubProvider({ repository: "apexlang/apex" })],
       }),

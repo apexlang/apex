@@ -19,6 +19,13 @@ export const templates = new Command()
     if (temp.description) {
       console.log(`Description: ${temp.description}`);
     }
+    if (temp.metadata) {
+      console.log(`Metadata:`);
+      Object.keys(temp.metadata).forEach((key) => {
+        const value = temp.metadata![key];
+        console.log(`  ${key}: ${value}`);
+      });
+    }
 
     const variables = temp.variables || [];
     if (variables.length > 0) {
