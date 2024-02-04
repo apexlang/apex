@@ -1,6 +1,6 @@
 import { Command } from "../deps/cliffy.ts";
-import * as streams from "https://deno.land/std@0.192.0/streams/read_all.ts";
-import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
+import * as io from "https://deno.land/std@0.213.0/io/read_all.ts";
+import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
 
 import { Configuration, Output, parseConfigYaml } from "../config.ts";
 import {
@@ -21,11 +21,15 @@ export const command = new Command()
     "reload files from cache",
   )
   .action(async (options: ProcessOptions, configFiles: string[]) => {
-    configFiles ||= [];
-    if (!configFiles.length) {
-      configFiles = ["apex.yaml"];
+    if (!Deno.stdin.isTerminal()) {
+      await fromStdin(options || {});
+    } else {
+      configFiles ||= [];
+      if (!configFiles.length) {
+        configFiles = ["apex.yaml"];
+      }
+      await fromFiles(configFiles, options || {});
     }
-    await fromFiles(configFiles, options || {});
   });
 
 export async function fromFiles(
@@ -46,7 +50,7 @@ export async function fromFiles(
 }
 
 export async function fromStdin(options: ProcessOptions = {}) {
-  const stdinContent = await streams.readAll(Deno.stdin);
+  const stdinContent = await io.readAll(Deno.stdin);
   const content = new TextDecoder().decode(stdinContent);
   const configs = parseConfigYaml(content);
   await fromConfigs(configs, options);

@@ -1,6 +1,6 @@
-import { assertEquals } from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.213.0/assert/assert_equals.ts";
 import { processTemplate } from "../src/process.ts";
-import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
+import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 

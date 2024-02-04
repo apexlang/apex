@@ -1,8 +1,8 @@
 // deno-lint-ignore-file no-explicit-any
-import * as log from "https://deno.land/std@0.192.0/log/mod.ts";
-import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
+import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
+import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
 import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
-import * as base64 from "https://deno.land/std@0.192.0/encoding/base64.ts";
+import * as base64 from "https://deno.land/std@0.213.0/encoding/base64.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 
@@ -79,7 +79,7 @@ export async function process(
   log.debug(`Generator output: ${output}`);
   const fromJson = JSON.parse(output) as JsonOutput[];
   return fromJson.map((o: any) => {
-    o.contents = base64.decode(o.contents);
+    o.contents = base64.decodeBase64(o.contents);
     return o as Output;
   });
 }
@@ -105,7 +105,7 @@ export async function processConfiguration(
     options,
   );
   return fromJson.map((o: any) => {
-    o.contents = base64.decode(o.contents);
+    o.contents = base64.decodeBase64(o.contents);
     return o as Output;
   });
 }

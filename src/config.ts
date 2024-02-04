@@ -1,9 +1,9 @@
 import { TaskConfig } from "./task.ts";
-import * as yaml from "https://deno.land/std@0.192.0/yaml/mod.ts";
+import * as yaml from "https://deno.land/std@0.213.0/yaml/mod.ts";
 import { findApexConfig } from "./utils.ts";
 import { log } from "./deps/log.ts";
 
-export type Config = { [key: string]: unknown };
+export type Config = Record<string, unknown>;
 
 /// MAIN CONFIG
 
@@ -76,7 +76,8 @@ export interface FSStructure {
   variables?: Record<string, string | number | boolean>;
   files?: string[];
   directories?: string[];
-  templates?: { [engine: string]: string[] };
+  templates?: Record<string, string[]>;
+  definitions?: Record<string, string>;
 }
 
 export interface TemplateConfig {
@@ -97,6 +98,7 @@ export interface Template {
 export interface TemplateInfo {
   name: string;
   description: string;
+  metadata?: Record<string, unknown>;
   variables?: Variable[];
   specLocation?: string;
 }
