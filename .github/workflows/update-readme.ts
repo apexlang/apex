@@ -3,6 +3,7 @@ const readme = "README.md";
 console.log(`Updating ${readme} examples`);
 const orig = Deno.readTextFileSync(readme);
 
+// deno-lint-ignore no-control-regex
 const colorCodes = /\x1b\[\d+;*m/g;
 const upgradeNotification = /\(New version.*$/m;
 

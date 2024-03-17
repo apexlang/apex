@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: denolib/setup-deno@v2
+      - uses: denoland/setup-deno@v2
       - name: Add SSH key
         env:
           TEST_SSH_KEY: ${{ secrets.TEST_SSH_KEY }}

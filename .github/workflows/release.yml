@@ -1,6 +1,12 @@
 name: Release apex version
 
 on:
+  push:
+    branches:
+      - main
+      - release-*
+    tags:
+      - v*
   workflow_dispatch:
     inputs:
       version:
@@ -20,7 +26,7 @@ jobs:
       - name: Update version and README.md
         env:
           VERSION: ${{ inputs.version }}
-          FILES: 'apex.ts,README.md'
+          FILES: 'mod.ts,README.md'
         run: |
           deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/release.ts
           deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/update-readme.ts
@@ -35,3 +41,25 @@ jobs:
           generateReleaseNotes: true
           makeLatest: true
           tag: ${{ inputs.version }}
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # The OIDC ID token is used for authentication with JSR.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      # - name: Run tests
+      #   run: deno test
+
+      - name: Is Release?
+        if: startswith(github.ref, 'refs/tags/v')
+        run: echo "DEPLOY_PACKAGE=true" >> $GITHUB_ENV
+
+      - name: Publish to npm
+        if: env.DEPLOY_PACKAGE == 'true'
+        run: npx jsr publish

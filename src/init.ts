@@ -1,7 +1,7 @@
-import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
-import * as fs from "https://deno.land/std@0.213.0/fs/mod.ts";
-import * as yaml from "https://deno.land/std@0.213.0/yaml/mod.ts";
-import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
+import * as path from "@std/path";
+import * as fs from "@std/fs";
+import * as yaml from "@std/yaml";
+import * as log from "@std/log";
 import {
   Confirm,
   ConfirmOptions,
@@ -10,7 +10,7 @@ import {
   Number,
   NumberOptions,
 } from "./deps/cliffy.ts";
-import * as eta from "https://deno.land/x/eta@v1.12.3/mod.ts";
+import { Eta } from "@eta-dev/eta";
 
 import {
   Output,
@@ -29,15 +29,21 @@ import {
 } from "./utils.ts";
 import { getTemplateInfo, processTemplate } from "./process.ts";
 import { AssetsBuilder } from "./asset_builder.ts";
-import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
 
 const templateEngines: Record<
   string,
   (temp: string, vars: Variables) => Promise<string>
 > = {
   "eta": async (temp: string, variables: Variables) => {
-    const result = eta.renderAsync(temp, variables);
+    const eta = new Eta({
+      autoEscape: false,
+      autoTrim: false,
+    });
+    const result = eta.render(temp, variables);
     if (result) {
+      if (typeof result === "string") {
+        return result;
+      }
       return await result;
     }
     throw new Error("template failed");
@@ -176,15 +182,15 @@ export async function getTemplateSources(
 // Very simple variable resolution.
 // Replace {{ .[varname] }} with value.
 export function processFile(
-  path: string,
+  filePath: string,
   contents: Uint8Array,
   variables: Record<string, unknown>,
 ): [string, Uint8Array] {
-  let target = path;
-  const ext = fileExtension(path);
-  if (ext == "tmpl") {
+  let target = filePath;
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext == ".tmpl") {
     target = target.slice(0, -5);
-    log.debug(`Processing '${path}' as template file`);
+    log.debug(`Processing '${filePath}' as template file`);
     contents = asBytes(
       renderTemplate(new TextDecoder().decode(contents), variables),
     );
@@ -227,9 +233,11 @@ export function getUnresolved(
         case "number":
           variables[variable.name] = parseFloat(value as string);
           break;
-        case "confirm":
-          variables[variable.name] = ("" + value).toLowerCase() == "true";
+        case "confirm": {
+          const v = ("" + value).toLowerCase();
+          variables[variable.name] = v == "true" || v == "t";
           break;
+        }
       }
     } else {
       unresolved.push(variable);
@@ -275,7 +283,7 @@ export async function initializeProjectFromTemplate(
   isNew: boolean,
   dir: string,
   template: string,
-  options: ProcessOptions,
+  _options: ProcessOptions,
   spec?: string,
   variables: Variables = {},
 ): Promise<void> {
@@ -305,7 +313,7 @@ export async function initializeProjectFromTemplate(
 
   log.debug(`Initializing project from template ${url}`);
 
-  const templateModule = await getTemplateInfo(url.toString(), options);
+  const templateModule = await getTemplateInfo(url.toString());
   if (!templateModule.info) {
     throw new Error("template module does not contain info");
   }
@@ -321,22 +329,31 @@ export async function initializeProjectFromTemplate(
 
   // Parse variable types and filter for unresolved variables.
   const unresolved = templateConfig.variables.filter((variable) => {
-    if (variables[variable.name]) {
-      if (variable.default) {
-        const type = variable.type || "input";
-        switch (type) {
-          case "number":
-            variables[variable.name] = parseFloat(variable.default as string);
-            break;
-          case "confirm":
-            variables[variable.name] =
-              (variable.default as string).toLowerCase() == "true";
-            break;
+    const value = variables[variable.name];
+    const type = variable.type || "input";
+    const assigned = value || variable.default;
+
+    if (assigned) {
+      // Convert string values to float/boolean for number/confirm.
+      switch (type) {
+        case "input":
+          if (assigned) {
+            variables[variable.name] = assigned;
+          }
+          break;
+        case "number":
+          variables[variable.name] = parseFloat(assigned as string);
+          break;
+        case "confirm": {
+          const v = (assigned as string).toLowerCase();
+          variables[variable.name] = v == "true" || v == "t";
+          break;
         }
       }
-      return false;
     }
-    return true;
+
+    // Include if not supplied on command line.
+    return value == null;
   });
 
   // Prompt for unresolved variables from the template.
@@ -368,7 +385,7 @@ export async function initializeProjectFromTemplate(
   // Default to name variable to directory name.
   variables.name = variables.name || path.basename(path.resolve(dir));
 
-  const fsstructure = await processTemplate(template, variables, options);
+  const fsstructure = await processTemplate(template, variables);
 
   // Add dynamic variables
   if (fsstructure.variables) {

@@ -1,10 +1,10 @@
-spec: ''
+spec: ""
 tasks:
   test:
-    deps: ['b']
+    deps: ["b"]
     cmds:
       - echo Hello World
   c: &c
     cmds:
-      - 'echo From c'
+      - "echo From c"
   b: *c
