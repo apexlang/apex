@@ -36,8 +36,14 @@ const templateEngines: Record<
   (temp: string, vars: Variables) => Promise<string>
 > = {
   "eta": async (temp: string, variables: Variables) => {
-    const result = eta.renderAsync(temp, variables);
+    const result = eta.render(temp, variables, {
+      autoEscape: false,
+      autoTrim: false,
+    });
     if (result) {
+      if (typeof result === "string") {
+        return result;
+      }
       return await result;
     }
     throw new Error("template failed");
@@ -227,9 +233,11 @@ export function getUnresolved(
         case "number":
           variables[variable.name] = parseFloat(value as string);
           break;
-        case "confirm":
-          variables[variable.name] = ("" + value).toLowerCase() == "true";
+        case "confirm": {
+          const v = ("" + value).toLowerCase();
+          variables[variable.name] = v == "true" || v == "t";
           break;
+        }
       }
     } else {
       unresolved.push(variable);
@@ -321,17 +329,29 @@ export async function initializeProjectFromTemplate(
 
   // Parse variable types and filter for unresolved variables.
   const unresolved = templateConfig.variables.filter((variable) => {
-    if (variables[variable.name]) {
-      if (variable.default) {
-        const type = variable.type || "input";
-        switch (type) {
-          case "number":
-            variables[variable.name] = parseFloat(variable.default as string);
-            break;
-          case "confirm":
-            variables[variable.name] =
-              (variable.default as string).toLowerCase() == "true";
-            break;
+    const value = variables[variable.name];
+    const type = variable.type || "input";
+    if (value) {
+      switch (type) {
+        case "number":
+          variables[variable.name] = parseFloat(value as string);
+          break;
+        case "confirm": {
+          const v = (value as string).toLowerCase();
+          variables[variable.name] = v == "true" || v == "t";
+          break;
+        }
+      }
+      return false;
+    } else if (variable.default) {
+      switch (type) {
+        case "number":
+          variables[variable.name] = parseFloat(variable.default as string);
+          break;
+        case "confirm": {
+          const v = (variable.default as string).toLowerCase();
+          variables[variable.name] = v == "true" || v == "t";
+          break;
         }
       }
       return false;

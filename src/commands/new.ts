@@ -13,6 +13,10 @@ export const command = new Command()
   .arguments("<template:string> <dir:string>")
   .option("-v, --var <item:string>", "define a template variable", varOptions)
   .option(
+    "-g, --from-git",
+    "use the project template from git",
+  )
+  .option(
     "-r, --reload",
     "ignore cache and reload sources",
   )
@@ -36,29 +40,31 @@ export const command = new Command()
     };
     const vars = options.var || ({} as Variables);
     try {
-      await initializeProjectFromTemplate(
-        true,
-        dir,
-        template,
-        options,
-        options.spec,
-        vars || {},
-      );
+      if (options.fromGit) {
+        await initializeProjectFromGit(
+          dir,
+          template,
+          vars || {},
+          {
+            isNew: true,
+            path: options.path,
+            branch: options.branch,
+            spec: options.spec,
+          },
+        );
+      } else {
+        await initializeProjectFromTemplate(
+          true,
+          dir,
+          template,
+          options,
+          options.spec,
+          vars || {},
+        );
+      }
     } catch (e) {
-      log.debug(
+      log.error(
         `Could not initialize project from programmatic template: ${e}`,
-      );
-      log.debug(`Falling back to git`);
-      await initializeProjectFromGit(
-        dir,
-        template,
-        vars || {},
-        {
-          isNew: true,
-          path: options.path,
-          branch: options.branch,
-          spec: options.spec,
-        },
       );
     }
   });
