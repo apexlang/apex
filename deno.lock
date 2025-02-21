@@ -15,7 +15,10 @@
     "jsr:@david/path@0.2": "0.2.0",
     "jsr:@david/which@~0.4.1": "0.4.1",
     "jsr:@eta-dev/eta@^3.5.0": "3.5.0",
+    "jsr:@fmt/biome-fmt@~0.1.13": "0.1.13",
+    "jsr:@fmt/clang-format@^19.1.7": "19.1.7",
     "jsr:@fmt/gofmt@~0.4.9": "0.4.9",
+    "jsr:@fmt/json-fmt@~0.1.13": "0.1.13",
     "jsr:@fmt/ruff-fmt@~0.9.4": "0.9.4",
     "jsr:@std/assert@0.221": "0.221.0",
     "jsr:@std/assert@^1.0.11": "1.0.11",
@@ -121,8 +124,17 @@
     "@eta-dev/eta@3.5.0": {
       "integrity": "6b70827efc14c7cbf08498ac7a922ecab003641caf3852a6cb5b1b12ee58fb37"
     },
+    "@fmt/biome-fmt@0.1.13": {
+      "integrity": "a61e4a2b211876b6ca0070c68222e6b2f3f91d2988b57c7b6c9f89e8c575b050"
+    },
+    "@fmt/clang-format@19.1.7": {
+      "integrity": "b5c854317057bb0f20fad57f3f7c7ef8aa02ecd4680b615caa9fce67c3cb9cc6"
+    },
     "@fmt/gofmt@0.4.9": {
       "integrity": "3dedec5d3d51795cc7dad8cedef1d56c8e18c96b7c12f08b0394c1d699f344d3"
+    },
+    "@fmt/json-fmt@0.1.13": {
+      "integrity": "49df80a2dfb2e214edbc9717b6ca1e99b50e4bcf47aa9729891ebe35f72ce41e"
     },
     "@fmt/ruff-fmt@0.9.4": {
       "integrity": "1e4f106e05f3493fe5ce490c2d27fbb4984f41afc237cf92fa7f2344ed543694"
@@ -257,7 +269,10 @@
       "jsr:@cliffy/table@^1.0.0-rc.7",
       "jsr:@david/dax@0.42",
       "jsr:@eta-dev/eta@^3.5.0",
+      "jsr:@fmt/biome-fmt@~0.1.13",
+      "jsr:@fmt/clang-format@^19.1.7",
       "jsr:@fmt/gofmt@~0.4.9",
+      "jsr:@fmt/json-fmt@~0.1.13",
       "jsr:@fmt/ruff-fmt@~0.9.4",
       "jsr:@std/assert@^1.0.11",
       "jsr:@std/encoding@^1.0.7",

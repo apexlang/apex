@@ -1,18 +1,20 @@
-import * as fmt from "https://deno.land/x/deno_fmt@0.1.5/mod.ts";
-import { Options } from "https://deno.land/x/deno_fmt@0.1.5/src/options.ts";
-import * as astyle from "./astyle.ts";
+import * as fmtJS from "@fmt/biome-fmt";
+import * as fmtPy from "@fmt/ruff-fmt";
+import * as fmtC from "@fmt/clang-format";
+import * as fmtGo from "@fmt/gofmt";
+import * as fmtJSON from "@fmt/json-fmt";
 
-type SourceFormatter = (source: string) => Promise<string>;
-type CLIFormatter = (source: string) => Promise<void>;
+type SourceFormatter = (source: string, filename: string) => Promise<string>;
+type CLIFormatter = (filename: string) => Promise<void>;
 
 export const sourceFormatters: { [ext: string]: SourceFormatter } = {
-  js: formatJs,
-  jsx: formatJsx,
-  ts: formatTs,
-  tsx: formatTsx,
-  md: formatMd,
+  js: formatJSTS,
+  // jsx: formatJsx,
+  ts: formatJSTS,
+  // tsx: formatTsx,
+  // md: formatMd,
   json: formatJson,
-  jsonc: formatJsonc,
+  jsonc: formatJson,
   cs: formatCsharp,
   java: formatClike,
   c: formatClike,
@@ -22,89 +24,98 @@ export const sourceFormatters: { [ext: string]: SourceFormatter } = {
   hpp: formatClike,
   "h++": formatClike,
   m: formatClike,
+  py: formatPython,
+  go: formatGo,
 };
 
 export const cliFormatters: { [filename: string]: CLIFormatter } = {
   rs: formatRust,
-  go: formatGo,
-  py: formatPython,
 };
 
-async function formatJs(source: string): Promise<string> {
-  return await formatWithDeno(source, "js");
-}
+// async function formatJsx(source: string): Promise<string> {
+//   return await formatWithDeno(source, "jsx");
+// }
 
-async function formatJsx(source: string): Promise<string> {
-  return await formatWithDeno(source, "jsx");
-}
+// async function formatTsx(source: string): Promise<string> {
+//   return await formatWithDeno(source, "tsx");
+// }
 
-async function formatTs(source: string): Promise<string> {
-  return await formatWithDeno(source, "ts");
-}
-
-async function formatTsx(source: string): Promise<string> {
-  return await formatWithDeno(source, "tsx");
-}
-
-async function formatMd(source: string): Promise<string> {
-  return await formatWithDeno(source, "md");
-}
+// async function formatMd(source: string): Promise<string> {
+//   return await formatWithDeno(source, "md");
+// }
 
 async function formatJson(source: string): Promise<string> {
-  return await formatWithDeno(source, "json");
-}
-
-async function formatJsonc(source: string): Promise<string> {
-  return await formatWithDeno(source, "jsonc");
-}
-
-async function formatWithDeno(
-  source: string,
-  ext: Options.Ext,
-): Promise<string> {
   try {
-    return await fmt.format(source, { ext: ext });
+    await fmtJSON.default();
+    return await fmtJSON.format(source);
   } catch (_e) {
     return source;
   }
 }
 
-const astyleHref = new URL("./astyle.wasm", import.meta.url).href;
+// async function formatJsonc(source: string): Promise<string> {
+//   return await formatWithDeno(source, "jsonc");
+// }
 
-async function formatCsharp(source: string): Promise<string> {
-  await astyle.init(astyleHref);
-  const [ok, result] = astyle.format(
-    source,
-    "indent-namespaces break-blocks pad-comma indent=tab style=1tbs",
-  );
-  if (!ok) {
-    throw new Error(`Could not format C#: ${result}`);
+async function formatJSTS(
+  source: string,
+  filename: string,
+): Promise<string> {
+  try {
+    await fmtJS.default();
+    return await fmtJS.format(source, filename);
+  } catch (_e) {
+    return source;
   }
-  return result;
 }
 
-async function formatClike(source: string): Promise<string> {
-  await astyle.init(astyleHref);
-  const [ok, result] = astyle.format(
-    source,
-    "pad-oper indent=tab style=google",
-  );
-  if (!ok) {
-    throw new Error(`Could not format source: ${result}`);
+async function formatCsharp(source: string, filename: string): Promise<string> {
+  // TODO: Find better settings
+  const config = JSON.stringify({
+    BasedOnStyle: "Chromium",
+    IndentWidth: 4,
+    ColumnLimit: 80,
+  });
+
+  try {
+    await fmtC.default();
+    return await fmtC.format(source, filename, config);
+  } catch (_e) {
+    return source;
   }
-  return result;
+}
+
+async function formatClike(source: string, filename: string): Promise<string> {
+  const config = JSON.stringify({
+    BasedOnStyle: "Chromium",
+    IndentWidth: 4,
+    ColumnLimit: 80,
+  });
+
+  try {
+    await fmtC.default();
+    return await fmtC.format(source, filename, config);
+  } catch (_e) {
+    return source;
+  }
 }
 
 async function formatRust(filename: string): Promise<void> {
   return await exec("rustfmt", "--edition", "2021", filename);
 }
 
-async function formatGo(filename: string): Promise<void> {
-  return await exec("gofmt", "-w", filename);
+async function formatGo(source: string): Promise<string> {
+  try {
+    await fmtGo.default();
+    return await fmtGo.format(source);
+  } catch (_e) {
+    return source;
+  }
 }
 
-async function formatPython(filename: string): Promise<void> {
-  return await exec("yapf", "-i", filename);
+async function formatPython(source: string): Promise<string> {
+  await fmtPy.default();
+  return fmtPy.format(source);
 }
 
 async function exec(cmd: string, ...args: string[]) {

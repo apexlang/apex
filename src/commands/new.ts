@@ -1,6 +1,6 @@
 import { Command } from "../deps/cliffy.ts";
 
-import { Variables } from "../config.ts";
+import type { Variables } from "../config.ts";
 import {
   initializeProjectFromGit,
   initializeProjectFromTemplate,

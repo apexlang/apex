@@ -1,4 +1,21 @@
 {
+  "name": "@apexlang/apex",
+  "version": "0.2.0",
+  "description": "Apex language JavaScript support",
+  "keywords": ["apex", "idl", "codegen"],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/apexlang/apex"
+  },
+  "bugs": {
+    "url": "https://www.github.com/apexlang/apex/issues"
+  },
+  "publish": {
+    "include": ["LICENSE", "README.md", "mod.ts", "src/**/*.ts"],
+    "exclude": ["src/tests"]
+  },
+  "exports": "./mod.ts",
   "imports": {
     "@apexlang/core": "jsr:@apexlang/core@^0.2.0",
     "@cliffy/ansi": "jsr:@cliffy/ansi@^1.0.0-rc.7",
@@ -7,7 +24,10 @@
     "@cliffy/table": "jsr:@cliffy/table@^1.0.0-rc.7",
     "@david/dax": "jsr:@david/dax@^0.42.0",
     "@eta-dev/eta": "jsr:@eta-dev/eta@^3.5.0",
+    "@fmt/biome-fmt": "jsr:@fmt/biome-fmt@^0.1.13",
+    "@fmt/clang-format": "jsr:@fmt/clang-format@^19.1.7",
     "@fmt/gofmt": "jsr:@fmt/gofmt@^0.4.9",
+    "@fmt/json-fmt": "jsr:@fmt/json-fmt@^0.1.13",
     "@fmt/ruff-fmt": "jsr:@fmt/ruff-fmt@^0.9.4",
     "@std/assert": "jsr:@std/assert@^1.0.11",
     "@std/encoding": "jsr:@std/encoding@^1.0.7",

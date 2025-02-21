@@ -3,10 +3,10 @@ import * as yaml from "@std/yaml";
 import * as log from "@std/log";
 import * as path from "@std/path";
 
-import { Configuration } from "../config.ts";
+import type { Configuration } from "../config.ts";
 import {
   processConfiguration,
-  ProcessOptions,
+  type ProcessOptions,
   writeOutput,
 } from "../process.ts";
 

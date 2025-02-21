@@ -4,7 +4,7 @@ import * as path from "@std/path";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 
-import {
+import type {
   Configuration,
   FSStructure,
   Output,
@@ -52,7 +52,7 @@ export async function writeOutput(generated: Output): Promise<void> {
   // Source formatting
   const sourceFormatter = sourceFormatters[ext];
   if (sourceFormatter) {
-    source = asBytes(await sourceFormatter(asString(source)));
+    source = asBytes(await sourceFormatter(asString(source), generated.path));
   }
 
   const mode = generated.mode || parseInt("644", 8);

@@ -1,9 +1,13 @@
 import * as log from "@std/log";
 
-import { getTemplateInfo, ProcessOptions, processTemplate } from "./process.ts";
+import {
+  getTemplateInfo,
+  type ProcessOptions,
+  processTemplate,
+} from "./process.ts";
 import { makeRelativeUrl } from "./utils.ts";
 import * as cache from "./cache.ts";
-import { TemplateMap } from "./config.ts";
+import type { TemplateMap } from "./config.ts";
 
 export async function installTemplate(
   registry: TemplateMap,

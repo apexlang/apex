@@ -1,11 +1,10 @@
 import * as path from "@std/path";
-import home_dir from "https://deno.land/x/dir@1.5.2/home_dir/mod.ts";
 import * as yaml from "@std/yaml";
 import * as log from "@std/log";
 import * as apex from "@apexlang/core";
 import * as ast from "@apexlang/core/ast";
 
-import {
+import type {
   Configuration,
   InstalledTemplate,
   TemplateRegistry,
@@ -76,7 +75,7 @@ export interface ApexDirs {
 }
 
 export async function getInstallDirectories(): Promise<ApexDirs> {
-  const homeDirectory = home_dir();
+  const homeDirectory = Deno.env.get("HOME");
   if (!homeDirectory) {
     throw new Error("could not determine home directory");
   }

@@ -4,7 +4,7 @@ import * as yaml from "@std/yaml";
 import { Command } from "../deps/cliffy.ts";
 import { getInstallDirectories } from "../utils.ts";
 import { installTemplate } from "../install.ts";
-import { TemplateMap, TemplateRegistry } from "../config.ts";
+import type { TemplateMap, TemplateRegistry } from "../config.ts";
 
 export const command = new Command()
   .arguments("<location:string>")

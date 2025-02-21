@@ -1,8 +1,8 @@
-import * as ast from "@apexlang/core/ast";
+import type * as ast from "@apexlang/core/ast";
 import * as model from "@apexlang/core/model";
 import * as log from "@std/log";
 
-import {
+import type {
   Config,
   Configuration,
   FSStructure,

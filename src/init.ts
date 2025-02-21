@@ -4,15 +4,15 @@ import * as yaml from "@std/yaml";
 import * as log from "@std/log";
 import {
   Confirm,
-  ConfirmOptions,
+  type ConfirmOptions,
   Input,
-  InputOptions,
+  type InputOptions,
   Number,
-  NumberOptions,
+  type NumberOptions,
 } from "./deps/cliffy.ts";
 import { Eta } from "@eta-dev/eta";
 
-import {
+import type {
   Output,
   TemplateConfig,
   TemplateRegistry,
@@ -20,7 +20,7 @@ import {
   Variables,
 } from "./config.ts";
 import { asBytes } from "./utils.ts";
-import { ProcessOptions, writeOutput } from "./process.ts";
+import { type ProcessOptions, writeOutput } from "./process.ts";
 import {
   existsSync,
   getInstallDirectories,

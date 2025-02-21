@@ -13,7 +13,7 @@
   },
   "exports": "./mod.ts",
   "publish": {
-    "include": ["LICENSE", "README.md", "src/**/*.ts"],
+    "include": ["LICENSE", "README.md", "mod.ts", "src/**/*.ts"],
     "exclude": ["src/tests"]
   }
 }

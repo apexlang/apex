@@ -2,10 +2,10 @@ import { Command } from "../deps/cliffy.ts";
 import { readAll } from "@std/io";
 import * as log from "@std/log";
 
-import { Configuration, Output, parseConfigYaml } from "../config.ts";
+import { type Configuration, type Output, parseConfigYaml } from "../config.ts";
 import {
   processConfiguration,
-  ProcessOptions,
+  type ProcessOptions,
   writeOutput,
 } from "../process.ts";
 
