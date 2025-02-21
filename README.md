@@ -45,31 +45,15 @@ apex --help
 Output:
 
 ```console{title="apex help"}
-Usage:   apex                                                                                         
-Version: v0.1.2  
-
-Description:
-
-  A complete project tool suite based on Apexlang, an interface definition language (IDL) for modeling software.
-
-Options:
-
-  -h, --help     - Show this help.                            
-  -V, --version  - Show the version number for this program.  
-
-Commands:
-
-  install      <location>          - Install templates locally.                                  
-  new          <template> <dir>    - Create a new project directory using a template.            
-  init         <template>          - Initialize a project using a template.                      
-  generate     [configuration...]  - Run Apexlang generators from a given configuration.         
-  list                             - List available resources.                                   
-  describe                         - Describe available resources.                               
-  watch        [configuration...]  - Watch configuration for changes and trigger code generation.
-  run          [tasks...]          - Run tasks.                                                  
-  upgrade                          - Upgrade apex executable to latest or given version.         
-  help         [command]           - Show this help or the help of a sub-command.                
-  completions                      - Generate shell completions.
+ERROR Error: couldn't fetch the latest version - try again after sometime
+    at JsrProvider.getVersions (https://jsr.io/@cliffy/command/1.0.0-rc.7/upgrade/provider/jsr.ts:48:13)
+    at eventLoopTick (ext:core/01_core.js:177:7)
+    at async UpgradeCommand.getLatestVersion (https://jsr.io/@cliffy/command/1.0.0-rc.7/upgrade/upgrade_command.ts:173:24)
+    at async checkVersion (https://jsr.io/@cliffy/command/1.0.0-rc.7/upgrade/_check_version.ts:13:25)
+    at async HelpCommand.actionHandler (https://jsr.io/@cliffy/command/1.0.0-rc.7/help/help_command.ts:30:9)
+    at async HelpCommand.execute (https://jsr.io/@cliffy/command/1.0.0-rc.7/command.ts:1940:7)
+    at async HelpCommand.parseCommand (https://jsr.io/@cliffy/command/1.0.0-rc.7/command.ts:1772:14)
+    at async file:///home/runner/work/apex/apex/mod.ts:85:5
 ```
 
 ## Running tests
