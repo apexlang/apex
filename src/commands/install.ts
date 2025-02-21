@@ -1,5 +1,5 @@
-import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
-import * as yaml from "https://deno.land/std@0.213.0/yaml/mod.ts";
+import * as path from "@std/path";
+import * as yaml from "@std/yaml";
 
 import { Command } from "../deps/cliffy.ts";
 import { getInstallDirectories } from "../utils.ts";
@@ -13,7 +13,8 @@ export const command = new Command()
     "-r, --reload",
     "ignore cache and reload sources",
   )
-  .action(async (options, location: string) => {
+  // deno-lint-ignore no-explicit-any
+  .action(async (options: any, location: string) => {
     const updates: TemplateMap = {};
     await installTemplate(updates, location, options || {});
 

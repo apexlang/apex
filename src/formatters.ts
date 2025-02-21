@@ -1,15 +1,18 @@
-import {
-  prettier,
-  prettierPlugins,
-} from "https://denolib.com/denolib/prettier/prettier.ts";
+import * as fmt from "https://deno.land/x/deno_fmt@0.1.5/mod.ts";
+import { Options } from "https://deno.land/x/deno_fmt@0.1.5/src/options.ts";
 import * as astyle from "./astyle.ts";
 
 type SourceFormatter = (source: string) => Promise<string>;
 type CLIFormatter = (source: string) => Promise<void>;
 
 export const sourceFormatters: { [ext: string]: SourceFormatter } = {
-  js: formatJsTs,
-  ts: formatJsTs,
+  js: formatJs,
+  jsx: formatJsx,
+  ts: formatTs,
+  tsx: formatTsx,
+  md: formatMd,
+  json: formatJson,
+  jsonc: formatJsonc,
   cs: formatCsharp,
   java: formatClike,
   c: formatClike,
@@ -27,13 +30,40 @@ export const cliFormatters: { [filename: string]: CLIFormatter } = {
   py: formatPython,
 };
 
-// deno-lint-ignore require-await
-async function formatJsTs(source: string): Promise<string> {
+async function formatJs(source: string): Promise<string> {
+  return await formatWithDeno(source, "js");
+}
+
+async function formatJsx(source: string): Promise<string> {
+  return await formatWithDeno(source, "jsx");
+}
+
+async function formatTs(source: string): Promise<string> {
+  return await formatWithDeno(source, "ts");
+}
+
+async function formatTsx(source: string): Promise<string> {
+  return await formatWithDeno(source, "tsx");
+}
+
+async function formatMd(source: string): Promise<string> {
+  return await formatWithDeno(source, "md");
+}
+
+async function formatJson(source: string): Promise<string> {
+  return await formatWithDeno(source, "json");
+}
+
+async function formatJsonc(source: string): Promise<string> {
+  return await formatWithDeno(source, "jsonc");
+}
+
+async function formatWithDeno(
+  source: string,
+  ext: Options.Ext,
+): Promise<string> {
   try {
-    return prettier.format(source, {
-      parser: "typescript",
-      plugins: prettierPlugins,
-    });
+    return await fmt.format(source, { ext: ext });
   } catch (_e) {
     return source;
   }

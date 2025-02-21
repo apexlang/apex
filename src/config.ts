@@ -1,11 +1,29 @@
 import { TaskConfig } from "./task.ts";
-import * as yaml from "https://deno.land/std@0.213.0/yaml/mod.ts";
+import * as yaml from "@std/yaml";
 import { findApexConfig } from "./utils.ts";
-import { log } from "./deps/log.ts";
+import * as log from "@std/log";
+import { ProcessOptions } from "./process.ts";
 
 export type Config = Record<string, unknown>;
 
 /// MAIN CONFIG
+
+export interface WorkerArgs<T> {
+  config: T;
+  options: ProcessOptions;
+}
+
+export interface IWorker {
+  // deno-lint-ignore no-explicit-any
+  onmessage: (event: MessageEvent<any>) => void;
+  // deno-lint-ignore no-explicit-any
+  postMessage: (event: any) => void;
+}
+
+// deno-lint-ignore no-explicit-any
+export function asWorker(s: any): IWorker {
+  return s as IWorker;
+}
 
 export interface Configuration {
   spec?: string;

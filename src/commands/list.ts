@@ -6,7 +6,8 @@ import * as ui from "../ui.ts";
 
 export const templates = new Command()
   .description("List installed templates.")
-  .action(async (_options) => {
+  // deno-lint-ignore no-explicit-any
+  .action(async (_options: any) => {
     const templates = await templateList();
     ui.objToTable(templates, ["version", "description"]);
   });
@@ -18,7 +19,8 @@ export const tasks = new Command()
     "specify an Apex configuration",
     { default: "apex.yaml" },
   )
-  .action(async (options) => {
+  // deno-lint-ignore no-explicit-any
+  .action(async (options: any) => {
     await runAction({ list: true, config: options.config }, "");
   });
 

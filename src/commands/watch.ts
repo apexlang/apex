@@ -1,7 +1,7 @@
 import { Command } from "../deps/cliffy.ts";
-import * as yaml from "https://deno.land/std@0.213.0/yaml/mod.ts";
-import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
-import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
+import * as yaml from "@std/yaml";
+import * as log from "@std/log";
+import * as path from "@std/path";
 
 import { Configuration } from "../config.ts";
 import {
@@ -19,7 +19,8 @@ export const command = new Command()
     "-r, --reload",
     "ignore cache and reload sources",
   )
-  .action(async (options, configFiles) => {
+  // deno-lint-ignore no-explicit-any
+  .action(async (options: any, configFiles: string[]) => {
     configFiles = configFiles || [];
     if (!configFiles.length) {
       configFiles = ["apex.yaml"];

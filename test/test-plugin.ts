@@ -1,6 +1,6 @@
 import { Configuration } from "../src/config.ts";
-import * as ast from "https://deno.land/x/apex_core@v0.1.5/ast.ts";
-import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
+import * as ast from "@apexlang/core/ast";
+import * as path from "@std/path";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 const generator = path.join(__dirname, "test-generator.ts");

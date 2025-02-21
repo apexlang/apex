@@ -5,7 +5,8 @@ export async function runApex(
   const cmdArgs = [
     "run",
     "--allow-all",
-    "./apex.ts",
+    "--unstable-worker-options",
+    "./mod.ts",
   ];
   cmdArgs.push(...args);
   console.log(`Running: deno ${cmdArgs.join(" ")}`);

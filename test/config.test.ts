@@ -1,15 +1,15 @@
-import { assertEquals } from "https://deno.land/std@0.213.0/assert/assert_equals.ts";
-import { process } from "../src/process.ts";
-import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
+import { assertEquals } from "@std/assert";
+import { processConfiguration } from "../src/process.ts";
+import * as path from "@std/path";
 import { asBytes } from "../src/utils.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 
 Deno.test(
   "process",
-  { permissions: { read: true, net: true, run: true } },
+  { permissions: "inherit" },
   async () => {
-    const generated = await process({
+    const generated = await processConfiguration({
       spec: path.join(__dirname, "test.axdl"),
       generates: {
         "file.rs": {
@@ -26,6 +26,7 @@ Deno.test(
         path: "file.rs",
         contents: asBytes(fixture),
         executable: false,
+        runAfter: undefined,
       },
     ]);
   },

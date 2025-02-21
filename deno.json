@@ -1,0 +1,20 @@
+{
+  "imports": {
+    "@apexlang/core": "jsr:@apexlang/core@^0.2.0",
+    "@cliffy/ansi": "jsr:@cliffy/ansi@^1.0.0-rc.7",
+    "@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.7",
+    "@cliffy/prompt": "jsr:@cliffy/prompt@^1.0.0-rc.7",
+    "@cliffy/table": "jsr:@cliffy/table@^1.0.0-rc.7",
+    "@david/dax": "jsr:@david/dax@^0.42.0",
+    "@eta-dev/eta": "jsr:@eta-dev/eta@^3.5.0",
+    "@fmt/gofmt": "jsr:@fmt/gofmt@^0.4.9",
+    "@fmt/ruff-fmt": "jsr:@fmt/ruff-fmt@^0.9.4",
+    "@std/assert": "jsr:@std/assert@^1.0.11",
+    "@std/encoding": "jsr:@std/encoding@^1.0.7",
+    "@std/fs": "jsr:@std/fs@^1.0.13",
+    "@std/io": "jsr:@std/io@^0.225.2",
+    "@std/log": "jsr:@std/log@^0.224.14",
+    "@std/path": "jsr:@std/path@^1.0.8",
+    "@std/yaml": "jsr:@std/yaml@^1.0.5"
+  }
+}
