@@ -19,7 +19,7 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
       - uses: denolib/setup-deno@v2
