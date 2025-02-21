@@ -1,4 +1,4 @@
-import { build$, CommandBuilder } from "./deps/dax.ts";
+import { build$, CommandBuilder } from "@david/dax";
 
 export enum TaskRunner {
   Dax = "dax",
@@ -9,6 +9,17 @@ export type TaskConfig = Partial<Pick<Task, keyof Task>>;
 export interface CmdOutput {
   cmd: string;
   output: Uint8Array;
+}
+
+export class RunError extends Error {
+  // deno-lint-ignore no-explicit-any
+  code: any;
+
+  // deno-lint-ignore no-explicit-any
+  constructor(message: string, code: any) {
+    super(message);
+    this.code = code;
+  }
 }
 
 export class Task {
@@ -54,7 +65,10 @@ export class Task {
           result = await $.raw`${joined}`.env(env);
         }
         if (result.code != 0) {
-          throw new Error(`Aborted with exit code: ${result.code}`);
+          throw new RunError(
+            `Aborted with exit code: ${result.code}`,
+            result.code,
+          );
         }
       }
       return output;

@@ -1,9 +1,13 @@
-import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
+import * as log from "@std/log";
 
-import { getTemplateInfo, ProcessOptions, processTemplate } from "./process.ts";
+import {
+  getTemplateInfo,
+  type ProcessOptions,
+  processTemplate,
+} from "./process.ts";
 import { makeRelativeUrl } from "./utils.ts";
 import * as cache from "./cache.ts";
-import { FSStructure, TemplateMap } from "./config.ts";
+import type { TemplateMap } from "./config.ts";
 
 export async function installTemplate(
   registry: TemplateMap,
@@ -21,17 +25,12 @@ export async function installTemplate(
     }
   }
 
-  const module = await getTemplateInfo(url.toString(), options);
+  const module = await getTemplateInfo(url.toString());
   if (module.info) {
     // Cache possible files
-    let structure: FSStructure | undefined;
-    try {
-      structure = await processTemplate(url.toString(), {
-        "cache": true,
-      }, options);
-    } catch (_err) {
-      // Ignore
-    }
+    const structure = await processTemplate(url.toString(), {
+      cache: true,
+    });
 
     if (structure) {
       log.info(`Installing ${module.info.name}...`);

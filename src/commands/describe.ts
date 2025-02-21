@@ -8,7 +8,8 @@ export const templates = new Command()
   .complete("template", async () => await templateCompletion())
   .arguments("<template:string>")
   .description("Describe installed template.")
-  .action(async (_options, template: string) => {
+  // deno-lint-ignore no-explicit-any
+  .action(async (_options: any, template: string) => {
     const registry = await loadTemplateRegistry();
     const temp = registry.templates[template];
     if (!temp) {

@@ -1,3 +1,3 @@
 #!/bin/sh
 # deno install mocker
-exec deno run --allow-all './apex.ts' "$@"
+exec deno run -A --config deno.json --unstable-worker-options './mod.ts' "$@"

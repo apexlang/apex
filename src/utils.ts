@@ -1,11 +1,10 @@
-import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
-import home_dir from "https://deno.land/x/dir@1.5.2/home_dir/mod.ts";
-import * as yaml from "https://deno.land/std@0.213.0/yaml/mod.ts";
-import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
-import * as apex from "https://deno.land/x/apex_core@v0.1.5/mod.ts";
-import * as ast from "https://deno.land/x/apex_core@v0.1.5/ast.ts";
+import * as path from "@std/path";
+import * as yaml from "@std/yaml";
+import * as log from "@std/log";
+import * as apex from "@apexlang/core";
+import * as ast from "@apexlang/core/ast";
 
-import {
+import type {
   Configuration,
   InstalledTemplate,
   TemplateRegistry,
@@ -76,7 +75,7 @@ export interface ApexDirs {
 }
 
 export async function getInstallDirectories(): Promise<ApexDirs> {
-  const homeDirectory = home_dir();
+  const homeDirectory = Deno.env.get("HOME");
   if (!homeDirectory) {
     throw new Error("could not determine home directory");
   }
@@ -97,7 +96,7 @@ export async function mkdirAll(path: string, mode: number) {
   try {
     await Deno.mkdir(path, { recursive: true, mode: mode });
   } catch (error) {
-    if (error && error.kind === Deno.errors.AlreadyExists) {
+    if (error instanceof Deno.errors.AlreadyExists) {
       // file or directory does not exist
     } else {
       // unexpected error, maybe permissions, pass it along
@@ -125,7 +124,7 @@ export function asString(bytes: Uint8Array) {
 export async function setupLogger(level: log.LevelName) {
   await log.setup({
     handlers: {
-      console: new log.handlers.ConsoleHandler(level),
+      console: new log.ConsoleHandler(level),
     },
     loggers: {
       default: {

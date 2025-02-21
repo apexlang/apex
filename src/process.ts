@@ -1,19 +1,14 @@
 // deno-lint-ignore-file no-explicit-any
-import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
-import * as path from "https://deno.land/std@0.213.0/path/mod.ts";
-import { fileExtension } from "https://deno.land/x/file_extension@v2.1.0/mod.ts";
-import * as base64 from "https://deno.land/std@0.213.0/encoding/base64.ts";
+import * as log from "@std/log";
+import * as path from "@std/path";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 
-import {
+import type {
   Configuration,
   FSStructure,
-  JsonOutput,
   Output,
-  ProcessTemplateArgs,
   Template,
-  TemplateConfig,
   Variables,
 } from "./config.ts";
 import { cliFormatters, sourceFormatters } from "./formatters.ts";
@@ -24,74 +19,16 @@ export interface ProcessOptions {
   scaffold?: boolean;
 }
 
-export async function process(
-  config: Configuration,
-  options: ProcessOptions,
-): Promise<Output[]> {
-  log.debug(`Configuration is: ${JSON.stringify(config, null, 2)}`);
-
-  // Run the generation process with restricted permissions.
-  const href = new URL("./generate.ts", import.meta.url).href;
-  const args = [
-    "run",
-    "--allow-read",
-    "--allow-net=deno.land,raw.githubusercontent.com",
-  ];
-  if (options.reload) {
-    args.push("--reload");
-  }
-  args.push(href);
-  if (options.scaffold) {
-    args.push("--scaffold");
-  }
-  const command = new Deno.Command("deno", {
-    args: args,
-    stdout: "piped",
-    stderr: "piped",
-    stdin: "piped",
-  });
-  const p = command.spawn();
-
-  const input = JSON.stringify(config);
-  const writer = p.stdin.getWriter();
-  await writer.write(new TextEncoder().encode(input));
-  await writer.close();
-
-  // Reading the outputs and closes their pipes
-  const out = await p.output();
-  const rawOutput = out.stdout;
-  const rawError = out.stderr;
-
-  const { code } = await p.status;
-  // p.close();
-
-  const errorString = new TextDecoder().decode(rawError);
-
-  if (code !== 0) {
-    throw new Error(errorString);
-  }
-
-  if (errorString && errorString.length > 0) {
-    console.log(errorString);
-  }
-
-  const output = new TextDecoder().decode(rawOutput);
-  log.debug(`Generator output: ${output}`);
-  const fromJson = JSON.parse(output) as JsonOutput[];
-  return fromJson.map((o: any) => {
-    o.contents = base64.decodeBase64(o.contents);
-    return o as Output;
-  });
-}
-
 export async function processPlugins(
   config: Configuration,
   options: ProcessOptions,
 ): Promise<Configuration> {
-  return await processGeneric<Configuration, Configuration>(
+  return await runWorker<Configuration>(
     path.join(__dirname, "run_plugins.ts"),
-    config,
-    options,
+    {
+      config,
+      options,
+    },
   );
 }
 
@@ -99,25 +36,23 @@ export async function processConfiguration(
   config: Configuration,
   options: ProcessOptions,
 ): Promise<Output[]> {
-  const fromJson = await processGeneric<Configuration, JsonOutput[]>(
+  return await runWorker<Output[]>(
     path.join(__dirname, "run_config.ts"),
-    config,
-    options,
+    {
+      config,
+      options,
+    },
   );
-  return fromJson.map((o: any) => {
-    o.contents = base64.decodeBase64(o.contents);
-    return o as Output;
-  });
 }
 
 export async function writeOutput(generated: Output): Promise<void> {
   let source = generated.contents;
-  const ext = fileExtension(generated.path).toLowerCase();
+  const ext = path.extname(generated.path).substring(1).toLowerCase();
 
   // Source formatting
   const sourceFormatter = sourceFormatters[ext];
   if (sourceFormatter) {
-    source = asBytes(await sourceFormatter(asString(source)));
+    source = asBytes(await sourceFormatter(asString(source), generated.path));
   }
 
   const mode = generated.mode || parseInt("644", 8);
@@ -159,87 +94,64 @@ export async function writeOutput(generated: Output): Promise<void> {
 
 export async function getTemplateInfo(
   module: string,
-  options: ProcessOptions,
 ): Promise<Template> {
-  return await processGeneric<string, TemplateConfig>(
+  return await runWorker<Template>(
     path.join(__dirname, "run_template_info.ts"),
     module,
-    options,
   );
 }
 
 export async function processTemplate(
   module: string,
   variables: Variables,
-  options: ProcessOptions,
 ): Promise<FSStructure> {
-  return await processGeneric<ProcessTemplateArgs, FSStructure>(
+  return await runWorker<FSStructure>(
     path.join(__dirname, "run_process_template.ts"),
     {
       module,
       variables,
     },
-    options,
   );
 }
 
-async function processGeneric<I, O>(
+function runWorker<O>(
   url: string,
-  config: I,
-  options: ProcessOptions,
+  input: any,
 ): Promise<O> {
-  options ||= {};
-  log.debug(`Input is: ${JSON.stringify(config, null, 2)}`);
+  log.debug(`Input is: ${JSON.stringify(input, null, 2)}`);
 
   // Run the generation process with restricted permissions.
   const href = new URL(url, import.meta.url).href;
 
-  const args = [
-    "run",
-    "--allow-read",
-    "--allow-net=deno.land,raw.githubusercontent.com",
-  ];
-  if (options.reload) {
-    args.push("--reload");
-  }
-  args.push(href);
-  if (options.scaffold) {
-    args.push("--scaffold");
-  }
-
-  const command = new Deno.Command("deno", {
-    cwd: Deno.cwd(),
-    args: args,
-    stdout: "piped",
-    stderr: "piped",
-    stdin: "piped",
+  const w = new Worker(href, {
+    type: "module",
+    deno: {
+      permissions: {
+        read: true,
+        import: true,
+      },
+    },
   });
-  const p = command.spawn();
 
-  const input = JSON.stringify(config);
-  const writer = p.stdin.getWriter();
-  await writer.write(new TextEncoder().encode(input));
-  await writer.close();
-
-  // Reading the outputs and closes their pipes
-  const out = await p.output();
-  const rawOutput = out.stdout;
-  const rawError = out.stderr;
-
-  const { code } = await p.status;
-  // p.close();
-
-  const errorString = new TextDecoder().decode(rawError);
-
-  if (code !== 0) {
-    throw new Error(errorString);
+  interface ErrorWrapper {
+    error?: Error;
   }
 
-  if (errorString && errorString.length > 0) {
-    console.log(errorString);
-  }
+  return new Promise((resolve, reject) => {
+    w.onmessage = (e: MessageEvent<O | ErrorWrapper>) => {
+      w.terminate();
+      const ew = e.data as ErrorWrapper;
+      if (ew != null && ew.error) {
+        reject(ew.error);
+      } else {
+        resolve(e.data as O);
+      }
+    };
+    w.onerror = (e) => {
+      w.terminate();
+      reject(e);
+    };
 
-  const output = new TextDecoder().decode(rawOutput);
-  log.debug(`Generator output: ${output}`);
-  return JSON.parse(output) as O;
+    w.postMessage(input);
+  });
 }

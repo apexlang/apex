@@ -19,3 +19,10 @@ for (const file of files) {
   const updated = orig.replace(/v\d+\.\d+\.\d+/, version);
   Deno.writeFileSync(file, new TextEncoder().encode(updated));
 }
+
+for (const file of ["jsr.json", "deno.json"]) {
+  console.log(`Updating ${file} for ${version}...`);
+  const orig = Deno.readTextFileSync(file);
+  const updated = orig.replace(/\d+\.\d+\.\d+/, version.substring(1));
+  Deno.writeFileSync(file, new TextEncoder().encode(updated));
+}

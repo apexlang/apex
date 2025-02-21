@@ -1,11 +1,11 @@
 import { Command } from "../deps/cliffy.ts";
-import * as io from "https://deno.land/std@0.213.0/io/read_all.ts";
-import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
+import { readAll } from "@std/io";
+import * as log from "@std/log";
 
-import { Configuration, Output, parseConfigYaml } from "../config.ts";
+import { type Configuration, type Output, parseConfigYaml } from "../config.ts";
 import {
   processConfiguration,
-  ProcessOptions,
+  type ProcessOptions,
   writeOutput,
 } from "../process.ts";
 
@@ -50,7 +50,7 @@ export async function fromFiles(
 }
 
 export async function fromStdin(options: ProcessOptions = {}) {
-  const stdinContent = await io.readAll(Deno.stdin);
+  const stdinContent = await readAll(Deno.stdin);
   const content = new TextDecoder().decode(stdinContent);
   const configs = parseConfigYaml(content);
   await fromConfigs(configs, options);

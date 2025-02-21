@@ -1,7 +1,7 @@
-spec: ''
+spec: ""
 tasks:
   test:
-    deps: ['b']
+    deps: ["b"]
     cmds:
       - echo Hello World
   b:

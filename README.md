@@ -22,7 +22,7 @@ Install `deno` with instructions
 To install a release version of the `apex` CLI, run the command below:
 
 ```
-deno install -A -f -n apex https://deno.land/x/apex_cli@v0.1.2/apex.ts
+deno install -g -A --unstable-worker-options -f -n apex jsr:@apexlang/apex
 ```
 
 To install from source, clone this repository and run `./apex install`
@@ -30,7 +30,7 @@ To install from source, clone this repository and run `./apex install`
 ```sh
 git clone https://github.com/apexlang/apex.git
 cd apex
-./apex install # or deno install -A -f ./apex.ts
+deno install -g -A --config deno.json --unstable-worker-options -f ./mod.ts
 ```
 
 ## Usage
@@ -46,7 +46,7 @@ Output:
 
 ```console{title="apex help"}
 Usage:   apex                                                                                         
-Version: v0.1.2  
+Version: v0.2.0  
 
 Description:
 

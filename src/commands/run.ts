@@ -1,12 +1,16 @@
 import { Command } from "../deps/cliffy.ts";
-import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
+import * as log from "@std/log";
 import { fromConfigs } from "./generate.ts";
 import * as ui from "../ui.ts";
 
-import { Configuration, findConfigFile, parseConfigYaml } from "../config.ts";
-import { ProcessOptions, processPlugins } from "../process.ts";
+import {
+  type Configuration,
+  findConfigFile,
+  parseConfigYaml,
+} from "../config.ts";
+import { type ProcessOptions, processPlugins } from "../process.ts";
 import { flatten, mergeConfigurations } from "../utils.ts";
-import { CmdOutput, Task } from "../task.ts";
+import { type CmdOutput, Task } from "../task.ts";
 
 export interface RunOptions {
   config?: string;

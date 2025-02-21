@@ -1,0 +1,19 @@
+{
+  "name": "@apexlang/core",
+  "version": "0.1.2",
+  "description": "Apex language JavaScript support",
+  "keywords": ["apex", "idl", "codegen"],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/apexlang/apex"
+  },
+  "bugs": {
+    "url": "https://www.github.com/apexlang/apex/issues"
+  },
+  "exports": "./mod.ts",
+  "publish": {
+    "include": ["LICENSE", "README.md", "mod.ts", "src/**/*.ts"],
+    "exclude": ["src/tests"]
+  }
+}

@@ -1,5 +1,5 @@
 import * as cache from "./cache.ts";
-import { Assets } from "./config.ts";
+import type { Assets } from "./config.ts";
 
 export class AssetsBuilder {
   private baseURL: string | URL;

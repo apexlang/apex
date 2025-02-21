@@ -1,12 +1,12 @@
 import { Command } from "../deps/cliffy.ts";
 
-import { Variables } from "../config.ts";
+import type { Variables } from "../config.ts";
 import {
   initializeProjectFromGit,
   initializeProjectFromTemplate,
 } from "../init.ts";
 import { templateCompletion, varOptions } from "./utils.ts";
-import { log } from "../deps/log.ts";
+import * as log from "@std/log";
 
 export const command = new Command()
   .complete("template", async () => await templateCompletion())
@@ -30,7 +30,8 @@ export const command = new Command()
     "apex specification to use for the project",
   )
   .description("Initialize a project using a template.")
-  .action(async (options, template) => {
+  // deno-lint-ignore no-explicit-any
+  .action(async (options: any, template: string) => {
     options ||= {
       path: "",
     };

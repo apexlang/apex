@@ -1,15 +1,14 @@
-import * as ast from "https://deno.land/x/apex_core@v0.1.5/ast.ts";
-import * as model from "https://deno.land/x/apex_core@v0.1.5/model.ts";
-import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
-import * as io from "https://deno.land/std@0.213.0/io/read_all.ts";
-import * as base64 from "https://deno.land/std@0.213.0/encoding/base64.ts";
+import type * as ast from "@apexlang/core/ast";
+import * as model from "@apexlang/core/model";
+import * as log from "@std/log";
 
-import {
+import type {
   Config,
   Configuration,
+  FSStructure,
   Output,
+  ProcessTemplateArgs,
   Template,
-  TemplateConfig,
 } from "./config.ts";
 import {
   existsSync,
@@ -136,6 +135,17 @@ export async function processPlugin(
   return config;
 }
 
+export async function processTemplateArgs(
+  args: ProcessTemplateArgs,
+): Promise<FSStructure | undefined> {
+  const temp = await importTemplate(args.module);
+  if (!temp.process) {
+    return undefined;
+  }
+
+  return await temp.process(args.variables);
+}
+
 export async function importTemplate(
   module: string,
 ): Promise<Template> {
@@ -143,25 +153,6 @@ export async function importTemplate(
 
   log.debug(`Importing template from ${url}`);
 
-  const template = await import(url.toString());
-  return template.default as TemplateConfig;
-}
-
-// Detect piped input
-if (!Deno.stdin.isTerminal() && import.meta.main) {
-  const stdinContent = await io.readAll(Deno.stdin);
-  const content = new TextDecoder().decode(stdinContent);
-  const scaffold = Deno.args.indexOf("--scaffold") != -1;
-  try {
-    const config = JSON.parse(content) as Configuration;
-    console.log(
-      JSON.stringify(
-        await processConfig(config, scaffold),
-        (_, v) => v instanceof Uint8Array ? base64.encodeBase64(v) : v,
-      ),
-    );
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+  const imported = await import(url.toString());
+  return imported.default;
 }

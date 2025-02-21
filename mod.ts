@@ -1,13 +1,13 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-env --allow-net --allow-run
+#!/usr/bin/env -S deno run -A --unstable-worker-options --config deno.json
 
 import {
   Command,
   CompletionsCommand,
-  GithubProvider,
   HelpCommand,
+  JsrProvider,
   UpgradeCommand,
 } from "./src/deps/cliffy.ts";
-import * as log from "https://deno.land/std@0.213.0/log/mod.ts";
+import * as log from "@std/log";
 
 const LEVEL =
   (Deno.env.get("APEX_LOG")?.toUpperCase() as log.LevelName | undefined) ||
@@ -24,6 +24,7 @@ import * as describe from "./src/commands/describe.ts";
 import * as watch from "./src/commands/watch.ts";
 import * as run from "./src/commands/run.ts";
 import { setupLogger } from "./src/utils.ts";
+import { RunError } from "./src/task.ts";
 
 // Version bump this on release.
 const version = "v0.1.2";
@@ -56,15 +57,16 @@ if (
     .command(
       "upgrade",
       new UpgradeCommand({
-        main: "apex.ts",
+        main: "mod.ts",
         args: [
           "--allow-read",
           "--allow-write",
           "--allow-env",
           "--allow-net",
           "--allow-run",
+          "--unstable-worker-options",
         ],
-        provider: [new GithubProvider({ repository: "apexlang/apex" })],
+        provider: [new JsrProvider({ package: "@apexlang/apex" })],
       }),
     )
     .command("help", new HelpCommand().global())
@@ -82,6 +84,11 @@ if (
   try {
     await cli.parse(args);
   } catch (e) {
+    if (e instanceof RunError) {
+      const re = e as RunError;
+      Deno.exit(re.code);
+    }
+
     log.error(e);
     Deno.exit(1);
   }

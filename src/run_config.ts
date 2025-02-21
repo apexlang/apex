@@ -1,22 +1,14 @@
-import * as io from "https://deno.land/std@0.213.0/io/read_all.ts";
-import * as base64 from "https://deno.land/std@0.213.0/encoding/base64.ts";
-
-import { Configuration } from "./config.ts";
+import { asWorker, type Configuration, type WorkerArgs } from "./config.ts";
 import { processConfig } from "./generate.ts";
 
-// Detect piped input
-if (!Deno.stdin.isTerminal() && import.meta.main) {
-  const stdinContent = await io.readAll(Deno.stdin);
-  const content = new TextDecoder().decode(stdinContent);
-  const scaffold = Deno.args.indexOf("--scaffold") != -1;
+const worker = asWorker(self);
+
+worker.onmessage = async (event: MessageEvent<WorkerArgs<Configuration>>) => {
   try {
-    const config = JSON.parse(content) as Configuration;
-    console.log(JSON.stringify(
-      await processConfig(config, scaffold),
-      (_, v) => v instanceof Uint8Array ? base64.encodeBase64(v) : v,
-    ));
+    const args = event.data;
+    const output = await processConfig(args.config, args.options.scaffold);
+    worker.postMessage(output);
   } catch (e) {
-    console.error(e);
-    throw e;
+    worker.postMessage({ error: `${e}` });
   }
-}
+};

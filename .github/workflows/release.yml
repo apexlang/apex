@@ -9,21 +9,23 @@ on:
 
 jobs:
   release:
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
-      - uses: denolib/setup-deno@v2
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - name: Update version and README.md
         env:
           VERSION: ${{ inputs.version }}
-          FILES: 'apex.ts,README.md'
+          FILES: 'mod.ts,README.md'
         run: |
           deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/release.ts
-          deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/update-readme.ts
+        # deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/update-readme.ts
       - name: Commit and tag release
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
