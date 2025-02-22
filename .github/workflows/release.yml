@@ -22,7 +22,7 @@ jobs:
       - name: Update version and README.md
         env:
           VERSION: ${{ inputs.version }}
-          FILES: 'mod.ts,README.md'
+          FILES: 'mod.ts,README.md,jsr.json,deno.json'
         run: |
           deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/release.ts
           deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/update-readme.ts

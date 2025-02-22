@@ -11,7 +11,11 @@
   "bugs": {
     "url": "https://www.github.com/apexlang/apex/issues"
   },
-  "exports": "./mod.ts",
+  "exports": {
+    ".": "./mod.ts",
+    "./config": "./src/config.ts",
+    "./task": "./src/task.ts"
+  },
   "publish": {
     "include": ["LICENSE", "README.md", "mod.ts", "src/**/*.ts"],
     "exclude": ["src/tests"]

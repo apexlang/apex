@@ -15,7 +15,11 @@
     "include": ["LICENSE", "README.md", "mod.ts", "src/**/*.ts"],
     "exclude": ["src/tests"]
   },
-  "exports": "./mod.ts",
+  "exports": {
+    ".": "./mod.ts",
+    "./config": "./src/config.ts",
+    "./task": "./src/task.ts"
+  },
   "imports": {
     "@apexlang/core": "jsr:@apexlang/core@^0.2.0",
     "@cliffy/ansi": "jsr:@cliffy/ansi@^1.0.0-rc.7",
