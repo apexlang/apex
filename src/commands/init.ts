@@ -1,12 +1,12 @@
-import { Command } from "../deps/cliffy.ts";
+import { Command } from "../../deps/@cliffy/command/mod.ts";
 
-import type { Variables } from "../config.ts";
+import { Variables } from "../config.ts";
 import {
   initializeProjectFromGit,
   initializeProjectFromTemplate,
 } from "../init.ts";
 import { templateCompletion, varOptions } from "./utils.ts";
-import * as log from "@std/log";
+import * as log from "../../deps/@std/log/mod.ts";
 
 export const command = new Command()
   .complete("template", async () => await templateCompletion())

@@ -1,4 +1,4 @@
-import { asWorker, type Configuration, type WorkerArgs } from "./config.ts";
+import { asWorker, Configuration, WorkerArgs } from "./config.ts";
 import { processPlugins } from "./generate.ts";
 
 const worker = asWorker(self);

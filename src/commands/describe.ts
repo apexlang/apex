@@ -1,4 +1,4 @@
-import { Command } from "../deps/cliffy.ts";
+import { Command } from "../../deps/@cliffy/command/mod.ts";
 import * as ui from "../ui.ts";
 
 import { loadTemplateRegistry } from "../utils.ts";

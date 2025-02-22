@@ -30,7 +30,7 @@ To install from source, clone this repository and run `./apex install`
 ```sh
 git clone https://github.com/apexlang/apex.git
 cd apex
-deno install -g -A --config deno.json --unstable-worker-options -f ./mod.ts
+deno install -g -A --unstable-worker-options -f ./mod.ts
 ```
 
 ## Usage

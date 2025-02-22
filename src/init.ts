@@ -1,18 +1,18 @@
-import * as path from "@std/path";
-import * as fs from "@std/fs";
-import * as yaml from "@std/yaml";
-import * as log from "@std/log";
+import * as path from "../deps/@std/path/mod.ts";
+import * as fs from "../deps/@std/fs/mod.ts";
+import * as yaml from "../deps/@std/yaml/mod.ts";
+import * as log from "../deps/@std/log/mod.ts";
 import {
   Confirm,
-  type ConfirmOptions,
+  ConfirmOptions,
   Input,
-  type InputOptions,
+  InputOptions,
   Number,
-  type NumberOptions,
-} from "./deps/cliffy.ts";
-import { Eta } from "@eta-dev/eta";
+  NumberOptions,
+} from "../deps/@cliffy/prompt/mod.ts";
+import { Eta } from "../deps/@eta-dev/eta/mod.ts";
 
-import type {
+import {
   Output,
   TemplateConfig,
   TemplateRegistry,
@@ -20,7 +20,7 @@ import type {
   Variables,
 } from "./config.ts";
 import { asBytes } from "./utils.ts";
-import { type ProcessOptions, writeOutput } from "./process.ts";
+import { ProcessOptions, writeOutput } from "./process.ts";
 import {
   existsSync,
   getInstallDirectories,

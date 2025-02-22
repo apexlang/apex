@@ -1,4 +1,4 @@
-import { ValidationError } from "../deps/cliffy.ts";
+import { ValidationError } from "../../deps/@cliffy/command/mod.ts";
 import { templateList } from "../utils.ts";
 
 export const varOptions = {

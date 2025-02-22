@@ -1,4 +1,5 @@
-import { Cell, colors, Row, Table } from "./deps/cliffy.ts";
+import { Cell, Row, Table } from "../deps/@cliffy/table/mod.ts";
+import { colors } from "../deps/@cliffy/ansi/mod.ts";
 
 export function double(value?: unknown): Cell {
   return new Cell((value || "").toString()).colSpan(2);

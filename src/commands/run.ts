@@ -1,5 +1,5 @@
-import { Command } from "../deps/cliffy.ts";
-import * as log from "@std/log";
+import { Command } from "../../deps/@cliffy/command/mod.ts";
+import * as log from "../../deps/@std/log/mod.ts";
 import { fromConfigs } from "./generate.ts";
 import * as ui from "../ui.ts";
 

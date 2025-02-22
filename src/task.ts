@@ -1,4 +1,4 @@
-import { build$, CommandBuilder } from "@david/dax";
+import { build$, CommandBuilder } from "../deps/@david/dax/mod.ts";
 
 export enum TaskRunner {
   Dax = "dax",

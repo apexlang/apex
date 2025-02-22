@@ -1,10 +1,10 @@
-import * as path from "@std/path";
-import * as yaml from "@std/yaml";
-import * as log from "@std/log";
-import * as apex from "@apexlang/core";
-import * as ast from "@apexlang/core/ast";
+import * as path from "../deps/@std/path/mod.ts";
+import * as yaml from "../deps/@std/yaml/mod.ts";
+import * as log from "../deps/@std/log/mod.ts";
+import * as apex from "../deps/@apexlang/core/mod.ts";
+import * as ast from "../deps/@apexlang/core/ast/mod.ts";
 
-import type {
+import {
   Configuration,
   InstalledTemplate,
   TemplateRegistry,

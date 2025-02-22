@@ -1,9 +1,9 @@
-import { Command } from "../deps/cliffy.ts";
-import * as yaml from "@std/yaml";
-import * as log from "@std/log";
-import * as path from "@std/path";
+import { Command } from "../../deps/@cliffy/command/mod.ts";
+import * as yaml from "../../deps/@std/yaml/mod.ts";
+import * as log from "../../deps/@std/log/mod.ts";
+import * as path from "../../deps/@std/path/mod.ts";
 
-import type { Configuration } from "../config.ts";
+import { Configuration } from "../config.ts";
 import {
   processConfiguration,
   type ProcessOptions,

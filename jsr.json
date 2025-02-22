@@ -1,7 +1,7 @@
 {
-  "name": "@apexlang/core",
+  "name": "@apexlang/apex",
   "version": "0.2.1",
-  "description": "Apex language JavaScript support",
+  "description": "Apex is a scaffolding, code generation, and task runner for all projects across all languages.",
   "keywords": ["apex", "idl", "codegen"],
   "license": "Apache-2.0",
   "repository": {
@@ -17,7 +17,13 @@
     "./task": "./src/task.ts"
   },
   "publish": {
-    "include": ["LICENSE", "README.md", "mod.ts", "src/**/*.ts"],
+    "include": [
+      "LICENSE",
+      "README.md",
+      "mod.ts",
+      "deps/**/*.ts",
+      "src"
+    ],
     "exclude": ["src/tests"]
   }
 }

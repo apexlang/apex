@@ -1,0 +1,3 @@
+The Apex CLI uses Workers to run the code generation process with minimal privileges. Workers do not support reading `imports` from `deno.json`, so packages must use the `jsr:` scheme in your import specifier. `jsr.io` translates import specifiers when packages are published; however, the lack of `deno.json` poses a problem when loading modules outside of `jsr.io`, either from the filesystem (local development) or remotely from source control (e.g., GitHub/GitLab).
+
+This directory is a central location for versioning imported modules, similar to how `deno.json` works, but using ES module built-in `export` capability.

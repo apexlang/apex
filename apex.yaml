@@ -9,4 +9,4 @@ tasks:
   install:
     description: Install apex
     cmds:
-      - deno install -g -A --config deno.json --unstable-worker-options -f ./mod.ts
+      - deno install -g -A --unstable-worker-options -f ./mod.ts

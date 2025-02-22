@@ -1,10 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
-import * as log from "@std/log";
-import * as path from "@std/path";
+import * as log from "../deps/@std/log/mod.ts";
+import * as path from "../deps/@std/path/mod.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 
-import type {
+import {
   Configuration,
   FSStructure,
   Output,

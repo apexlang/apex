@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run -A --unstable-worker-options --config deno.json
+#!/usr/bin/env -S deno run -A --unstable-worker-options
 
 import {
   Command,
@@ -6,8 +6,8 @@ import {
   HelpCommand,
   JsrProvider,
   UpgradeCommand,
-} from "./src/deps/cliffy.ts";
-import * as log from "@std/log";
+} from "./deps/@cliffy/command/mod.ts";
+import * as log from "./deps/@std/log/mod.ts";
 
 const LEVEL =
   (Deno.env.get("APEX_LOG")?.toUpperCase() as log.LevelName | undefined) ||

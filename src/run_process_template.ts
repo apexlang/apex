@@ -1,4 +1,4 @@
-import { asWorker, type ProcessTemplateArgs } from "./config.ts";
+import { asWorker, ProcessTemplateArgs } from "./config.ts";
 import { processTemplateArgs } from "./generate.ts";
 
 const worker = asWorker(self);

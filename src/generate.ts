@@ -1,8 +1,9 @@
-import type * as ast from "@apexlang/core/ast";
-import * as model from "@apexlang/core/model";
-import * as log from "@std/log";
+import * as ast from "../deps/@apexlang/core/ast/mod.ts";
+import * as model from "../deps/@apexlang/core/model/mod.ts";
+import * as log from "../deps/@std/log/mod.ts";
+import dynamicimport from "./dynamicimport.ts";
 
-import type {
+import {
   Config,
   Configuration,
   FSStructure,
@@ -72,7 +73,7 @@ export async function processConfig(
         )
       }`,
     );
-    const generator = await import(url.toString());
+    const generator = await dynamicimport(url.toString());
     const writer = new model.Writer();
     const visitor = (generatorConfig.visitorClass
       ? new generator[generatorConfig.visitorClass](writer)
@@ -89,7 +90,7 @@ export async function processConfig(
     for (const v of generatorConfig.append || []) {
       const url = makeRelativeUrl(v.module);
       log.debug(`Appending source from ${url}`);
-      const generator = await import(url.toString());
+      const generator = await dynamicimport(url.toString());
       const visitor = (v.visitorClass
         ? new generator[v.visitorClass](writer)
         : new generator.default(writer)) as model.Visitor;
@@ -126,7 +127,7 @@ export async function processPlugin(
 
     log.debug(`Generating configuration with plugin from ${url}`);
 
-    const plugin = await import(url.toString());
+    const plugin = await dynamicimport(url.toString());
     const generatedConfig = plugin.default(doc, config);
     // Update the generated config with values manually entered by the user
     config = mergeConfigurations(originalConfig, generatedConfig);
@@ -153,6 +154,6 @@ export async function importTemplate(
 
   log.debug(`Importing template from ${url}`);
 
-  const imported = await import(url.toString());
+  const imported = await dynamicimport(url.toString());
   return imported.default;
 }

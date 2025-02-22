@@ -1,11 +1,11 @@
-import { Command } from "../deps/cliffy.ts";
-import { readAll } from "@std/io";
-import * as log from "@std/log";
+import { Command } from "../../deps/@cliffy/command/mod.ts";
+import { readAll } from "../../deps/@std/io/mod.ts";
+import * as log from "../../deps/@std/log/mod.ts";
 
-import { type Configuration, type Output, parseConfigYaml } from "../config.ts";
+import { Configuration, Output, parseConfigYaml } from "../config.ts";
 import {
   processConfiguration,
-  type ProcessOptions,
+  ProcessOptions,
   writeOutput,
 } from "../process.ts";
 

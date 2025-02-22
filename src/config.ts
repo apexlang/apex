@@ -1,8 +1,8 @@
-import type { TaskConfig } from "./task.ts";
-import * as yaml from "@std/yaml";
+import { TaskConfig } from "./task.ts";
+import * as yaml from "../deps/@std/yaml/mod.ts";
 import { findApexConfig } from "./utils.ts";
-import * as log from "@std/log";
-import type { ProcessOptions } from "./process.ts";
+import * as log from "../deps/@std/log/mod.ts";
+import { ProcessOptions } from "./process.ts";
 
 export type Config = Record<string, unknown>;
 

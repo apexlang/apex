@@ -1,4 +1,4 @@
-import { Command } from "../deps/cliffy.ts";
+import { Command } from "../../deps/@cliffy/command/mod.ts";
 import { action as runAction } from "./run.ts";
 
 import { templateList } from "../utils.ts";
