@@ -25,7 +25,7 @@ jobs:
           FILES: 'mod.ts,README.md'
         run: |
           deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/release.ts
-        # deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/update-readme.ts
+          deno run --allow-run --allow-env --allow-write --allow-read ./.github/workflows/update-readme.ts
       - name: Commit and tag release
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
