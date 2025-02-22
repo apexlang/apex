@@ -1,6 +1,6 @@
 {
   "name": "@apexlang/core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Apex language JavaScript support",
   "keywords": ["apex", "idl", "codegen"],
   "license": "Apache-2.0",

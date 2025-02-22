@@ -27,7 +27,7 @@ import { setupLogger } from "./src/utils.ts";
 import { RunError } from "./src/task.ts";
 
 // Version bump this on release.
-const version = "0.2.0";
+const version = "0.2.1";
 
 // This is necessary so we can modify the argument list.
 const args = Array.from(Deno.args);
