@@ -49,6 +49,9 @@ export async function installTemplate(
 
     location = "https://jsr.io/" + slug;
     const relativePath = jsr.exports[relativeImport];
+    if (!relativePath) {
+      throw new Error(`Module is missing export: ${relativeImport}`);
+    }
     if (relativePath.length > 1) {
       location += relativePath.substring(1);
     }
