@@ -21,7 +21,7 @@ Install `deno` with instructions
 
 To install a release version of the `apex` CLI, run the command below:
 
-```
+```cli
 deno install -g -A --unstable-worker-options -f -n apex jsr:@apexlang/apex
 ```
 

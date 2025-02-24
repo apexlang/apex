@@ -13,6 +13,7 @@
   },
   "exports": {
     ".": "./mod.ts",
+    "./mod.ts": "./mod.ts",
     "./config": "./src/config.ts",
     "./task": "./src/task.ts"
   },
