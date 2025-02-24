@@ -1,6 +1,6 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals } from "../deps/@std/assert/mod.ts";
 import { getTemplateSources, getUnresolved } from "../src/init.ts";
-import * as path from "@std/path";
+import * as path from "../deps/@std/path/mod.ts";
 import { asBytes, setupLogger } from "../src/utils.ts";
 import { Variable } from "../src/config.ts";
 

@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals } from "../deps/@std/assert/mod.ts";
 import { Configuration } from "../src/config.ts";
 import { flatten, merge, mergeConfigurations } from "../src/utils.ts";
 

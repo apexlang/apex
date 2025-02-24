@@ -1,7 +1,7 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals } from "../deps/@std/assert/mod.ts";
 import { loadTasks, parseTasks } from "../src/commands/run.ts";
 import { Task, TaskRunner } from "../src/task.ts";
-import * as path from "@std/path";
+import * as path from "../deps/@std/path/mod.ts";
 import { setupLogger } from "../src/utils.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;

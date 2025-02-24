@@ -19,7 +19,7 @@ import {
   Variable,
   Variables,
 } from "./config.ts";
-import { asBytes } from "./utils.ts";
+import { asBytes, extractVersion } from "./utils.ts";
 import { ProcessOptions, writeOutput } from "./process.ts";
 import {
   existsSync,
@@ -308,6 +308,12 @@ export async function initializeProjectFromTemplate(
     }
     template = resolved.url;
   }
+
+  // Set variables that can access the version.
+  const version = extractVersion(template);
+  variables.version_self = version || "";
+  variables.version_slug = version ? "/" + version : "";
+  variables.version_qualifier = version ? "@" + version : "";
 
   const url = makeRelativeUrl(template);
 

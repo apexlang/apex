@@ -1,4 +1,4 @@
-import { cache } from "../deps/@denosaurs/cache/mod.ts";
+import { cache } from "./cache/mod.ts";
 import { decode, encode } from "./utf8.ts";
 
 interface WasmModuleExports {

@@ -10,16 +10,51 @@ export async function installTemplate(
   location: string,
   options: ProcessOptions,
 ) {
-  let url = makeRelativeUrl(location);
+  if (location.startsWith("jsr:")) {
+    let pkg = location.substring(4);
 
-  // Determine if URL redirects and possible use the
-  // location with the version included (e.g. deno.land/x).
-  if (["http:", "https:"].indexOf(url.protocol) != -1) {
-    const resp = await fetch(url);
-    if (resp.redirected) {
-      url = new URL(resp.url);
+    // Resolve latest version if not specified
+    if (!/@\d+\.\d+\.\d+/.test(pkg)) {
+      while (pkg.startsWith("/")) {
+        pkg = pkg.substring(1);
+      }
+      const parts = pkg.split("/");
+      if (parts.length < 2) {
+        throw new Error(`Invalid JSR location: ${location}`);
+      }
+      pkg = parts[0] + "/" + parts[1];
+      const metaURL = "https://jsr.io/" + pkg + "/meta.json";
+      const meta = await (await fetch(metaURL)).json();
+      log.info(`Latest version of ${location} is ${meta.latest}`);
+      pkg = pkg += "@" + meta.latest;
+      for (let i = 2; i < parts.length; i++) {
+        pkg += "/" + parts[i];
+      }
+    }
+
+    pkg = "@" + pkg.substring(1).replace("@", "/");
+    const parts = pkg.split("/");
+    if (parts.length < 3) {
+      throw new Error(`Invalid JSR location: ${pkg}`);
+    }
+    let relativeImport = ".";
+    for (let i = 3; i < parts.length; i++) {
+      relativeImport += "/" + parts[i];
+    }
+
+    const slug = parts[0] + "/" + parts[1] + "/" +
+      parts[2];
+    const jsrURL = "https://jsr.io/" + slug + "/jsr.json";
+    const jsr = await (await fetch(jsrURL)).json();
+
+    location = "https://jsr.io/" + slug;
+    const relativePath = jsr.exports[relativeImport];
+    if (relativePath.length > 1) {
+      location += relativePath.substring(1);
     }
   }
+
+  const url = makeRelativeUrl(location);
 
   const module = await getTemplateInfo(url.toString());
   if (module.info) {
@@ -43,7 +78,13 @@ export async function installTemplate(
         if (!path.startsWith("./")) {
           path = "./" + path;
         }
-        await cache.load(new URL(path, url).toString());
+
+        const download = new URL(path, url);
+        try {
+          await cache.load(download.toString());
+        } catch (e) {
+          log.warn(`Could not load ${download.toString()}: ${e}`);
+        }
       }
 
       const templates = structure.templates || {};
@@ -56,7 +97,12 @@ export async function installTemplate(
           if (!path.startsWith("./")) {
             path = "./" + path;
           }
-          await cache.load(new URL(path, url).toString());
+          const download = new URL(path, url);
+          try {
+            await cache.load(download.toString());
+          } catch (e) {
+            log.warn(`Could not load ${download.toString()}: ${e}`);
+          }
         }
       }
     }

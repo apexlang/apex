@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals } from "../deps/@std/assert/mod.ts";
 import { runApex } from "./run-apex.ts";
 
 // Deno.test(

@@ -1,7 +1,7 @@
-import * as apex from "@apexlang/core";
-import { assertEquals } from "@std/assert";
+import * as apex from "../deps/@apexlang/core/mod.ts";
+import { assertEquals } from "../deps/@std/assert/mod.ts";
 import { processConfig, processPlugin } from "../src/generate.ts";
-import * as path from "@std/path";
+import * as path from "../deps/@std/path/mod.ts";
 import { asBytes, setupLogger } from "../src/utils.ts";
 import { Configuration } from "../src/config.ts";
 

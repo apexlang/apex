@@ -1,6 +1,6 @@
 import { Configuration } from "../src/config.ts";
-import * as ast from "@apexlang/core/ast";
-import * as path from "@std/path";
+import * as ast from "../deps/@apexlang/core/ast/mod.ts";
+import * as path from "../deps/@std/path/mod.ts";
 
 const __dirname = new URL(".", import.meta.url).pathname;
 const generator = path.join(__dirname, "test-generator.ts");

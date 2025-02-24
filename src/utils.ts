@@ -42,22 +42,44 @@ export async function loadTemplateRegistry(): Promise<TemplateRegistry> {
   }
 }
 
+const versionRegex = /@(v[0-9][.0-9a-zA-Z\-_^\/]*?)\//s;
+
+export function extractVersion(url: string): string | undefined {
+  // Extract version from JSR URL.
+  if (url.startsWith("https://jsr.io/")) {
+    let pkg = url.substring(15);
+    while (pkg.startsWith("/")) {
+      pkg = pkg.substring(1);
+    }
+    const parts = pkg.split("/");
+    if (parts.length >= 3) {
+      return parts[2];
+    }
+  }
+
+  // Get version
+  let m;
+  if ((m = versionRegex.exec(url)) !== null) {
+    if (m.length > 1) {
+      return m[1].substring(1);
+    }
+  }
+
+  return undefined;
+}
+
 function calulateVersions(registry: TemplateRegistry) {
   for (const tmpl of Object.values(registry.templates)) {
-    if (tmpl.version) {
+    if (tmpl.version != null) {
       continue;
     }
 
-    const versionRegex = /@(v[0-9][.0-9a-zA-Z\-_^\/]*?)\//s;
+    // Extract version from JSR URL.
 
-    // Get version
-    let m;
-    if ((m = versionRegex.exec(tmpl.url)) !== null) {
-      m.forEach((match, groupIndex) => {
-        if (groupIndex == 1) {
-          tmpl.version = match;
-        }
-      });
+    const version = extractVersion(tmpl.url);
+    if (version) {
+      tmpl.version = version;
+      continue;
     }
   }
 }

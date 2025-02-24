@@ -1,4 +1,4 @@
-import { assert, assertEquals } from "@std/assert";
+import { assert, assertEquals } from "../deps/@std/assert/mod.ts";
 import { runTasks } from "../src/commands/run.ts";
 import { Task } from "../src/task.ts";
 import { runApex } from "./run-apex.ts";

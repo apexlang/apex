@@ -1,4 +1,4 @@
-import { cache, remove as cacheRemove } from "../deps/@denosaurs/cache/mod.ts";
+import { cache, remove as cacheRemove } from "./cache/mod.ts";
 
 export async function load(location: string): Promise<Uint8Array> {
   if (location.startsWith("file:///") || location.startsWith(".")) {

@@ -20,6 +20,9 @@ export class AssetsBuilder {
       }
       const u = new URL(path, this.baseURL);
       const data = await cache.load(u.toString());
+      if (path == "_gitignore") {
+        path = ".gitignore";
+      }
       this._assets[path] = data;
     }
   }
@@ -43,6 +46,9 @@ export class AssetsBuilder {
 
       if (path.endsWith(".tmpl")) {
         path = path.substring(0, path.length - 5);
+      }
+      if (path == "_gitignore") {
+        path = ".gitignore";
       }
       this._assets[path] = new TextEncoder().encode(result);
     }
