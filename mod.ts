@@ -64,6 +64,7 @@ if (
           "--allow-env",
           "--allow-net",
           "--allow-run",
+          "--allow-import",
           "--unstable-worker-options",
         ],
         provider: [new JsrProvider({ package: "@apexlang/apex" })],
