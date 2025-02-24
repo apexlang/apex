@@ -46,7 +46,7 @@ Output:
 
 ```console{title="apex help"}
 Usage:   apex                                                                                       
-Version: 0.2.2  
+Version: 0.2.3  
 
 Description:
 
