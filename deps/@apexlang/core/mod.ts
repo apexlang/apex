@@ -1,1 +1,1 @@
-export * from "jsr:@apexlang/core@^0.2.0";
+export * from "jsr:@apexlang/core@^0.2.1";
