@@ -1,7 +1,8 @@
 import * as log from "../deps/@std/log/mod.ts";
+import * as path from "../deps/@std/path/mod.ts";
 
 import { getTemplateInfo, ProcessOptions, processTemplate } from "./process.ts";
-import { makeRelativeUrl } from "./utils.ts";
+import { getInstallDirectories, makeRelativeUrl, mkdirAll } from "./utils.ts";
 import * as cache from "./cache.ts";
 import { TemplateMap } from "./config.ts";
 
@@ -67,13 +68,39 @@ export async function installTemplate(
     });
 
     if (structure) {
-      log.info(`Installing ${module.info.name}...`);
       registry[module.info.name] = {
         ...module.info,
         url: url.toString(),
       };
 
+      const dirs = await getInstallDirectories();
+      const definitions = structure.definitions || {};
+      for (const name of Object.keys(definitions)) {
+        log.info(`Installing definition ${name}...`);
+        let definitonPath = definitions[name];
+
+        if (!definitonPath.startsWith("./")) {
+          definitonPath = "./" + definitonPath;
+        }
+
+        const download = new URL(definitonPath, url);
+        try {
+          const content = await cache.load(download.toString());
+
+          const definitionDir = path.join(dirs.definitions, name);
+          await mkdirAll(definitionDir, 0o700);
+          const specDir = path.join(definitionDir, "index.axdl");
+
+          Deno.writeFileSync(specDir, content);
+        } catch (e) {
+          log.warn(`Could not load ${download.toString()}: ${e}`);
+        }
+      }
+
       const files = structure.files || [];
+      if (files.length > 0) {
+        log.info(`Installing template ${module.info.name}...`);
+      }
       for (let path of files) {
         if (path.indexOf("..") != -1) {
           throw new Error(`invalid path ${path}`);
