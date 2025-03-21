@@ -1,6 +1,6 @@
 {
   "name": "@apexlang/apex",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Apex is a scaffolding, code generation, and task runner for all projects across all languages.",
   "keywords": ["apex", "idl", "codegen"],
   "license": "Apache-2.0",
